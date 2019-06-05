@@ -1,4 +1,4 @@
-# Rabbit (Rabbit Messaging)
+# Rabbit (Rabbit Messaging) &middot;  [![Gem Version](https://badge.fury.io/rb/rabbit_messaging.svg)](https://badge.fury.io/rb/rabbit_messaging) [![Build Status](https://travis-ci.org/umbrellio/rabbit_messaging.svg?branch=master)](https://travis-ci.org/umbrellio/rabbit_messaging) [![Coverage Status](https://coveralls.io/repos/github/umbrellio/rabbit_messaging/badge.svg?branch=master)](https://coveralls.io/github/umbrellio/rabbit_messaging?branch=master)
 
 Provides client and server support for RabbitMQ
 
