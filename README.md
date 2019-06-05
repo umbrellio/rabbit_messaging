@@ -126,6 +126,8 @@ to teardown and setup external connections between daemon restarts, for example 
 - Received messages are logged to `/log/sneakers.log`, malformed messages are logged to
 `/log/malformed_messages.log` and deleted from queue
 
+---
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/umbrellio/rabbit_messaging.
