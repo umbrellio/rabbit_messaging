@@ -20,6 +20,6 @@ RSpec.configure do |config|
   config.order = :random
   Kernel.srand config.seed
   config.disable_monkey_patching!
-  config.expect_with(:rspec) { c | c.syntax = :expect }
+  config.expect_with(:rspec) { |c| c.syntax = :expect }
   config.mock_with(:rspec) { |mocks| mocks.verify_partial_doubles = true }
 end
