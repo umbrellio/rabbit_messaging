@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "rabbit_messaging"
+
+require "pry"
+Pry.start

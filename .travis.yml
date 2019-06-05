@@ -1,0 +1,18 @@
+language: ruby
+matrix:
+  fast_finish: true
+  include:
+  - rvm: 2.3
+  - rvm: 2.4
+  - rvm: 2.5
+  - rvm: 2.6
+  - rvm: ruby-head
+  allow_failures:
+  - rvm: ruby-head
+sudo: false
+cache: bundler
+before_install: gem install bundler
+script:
+- bundle exec rake bundle:audit
+- bundle exec rubocop
+- bundle exec rspec
