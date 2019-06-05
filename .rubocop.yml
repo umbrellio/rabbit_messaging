@@ -4,3 +4,14 @@ inherit_gem:
 AllCops:
   DisplayCopNames: true
   TargetRubyVersion: 2.3
+  Include:
+    - lib/**/*.rb
+    - spec/**/*.rb
+    - Gemfile
+    - Rakefile
+    - rabbit_messaging.gemspec
+    - bin/console
+    - environments/*.rb
+
+Style/Alias:
+  EnforcedStyle: prefer_alias_method

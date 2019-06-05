@@ -12,14 +12,27 @@ SimpleCov.start { add_filter "spec" }
 
 require "bundler/setup"
 require "rabbit_messaging"
-require "pry"
 
+require "rspec/its"
+require "pry"
+require "exception_notification"
+require "ipaddr"
+
+require_relative "../environments/development"
 require_relative "support/spec_support"
 
 RSpec.configure do |config|
-  config.order = :random
-  Kernel.srand config.seed
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
   config.disable_monkey_patching!
-  config.expect_with(:rspec) { |c| c.syntax = :expect }
-  config.mock_with(:rspec) { |mocks| mocks.verify_partial_doubles = true }
+
+  config.default_formatter = "doc" if config.files_to_run.one?
+  config.expose_dsl_globally = true
 end
