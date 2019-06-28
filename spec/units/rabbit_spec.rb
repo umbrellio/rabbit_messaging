@@ -18,15 +18,16 @@ RSpec.describe Rabbit do
   end
 
   shared_examples "publishes" do
-    it "publishes" do # rubocop:disable RSpec/ExampleLength
-      logger = double("logger")
-      bunny = double("bunny")
-      channel = double("channel")
+    let(:publish_logger)   { double("publish_logger") }
+    let(:bunny)            { double("bunny") }
+    let(:channel)          { double("channel") }
 
+    before do
       allow(Bunny).to receive_message_chain(:new, :start).and_return(bunny)
       allow(bunny).to receive(:create_channel).and_return(channel)
 
-      allow(Logger).to receive(:new).with(Rails.root.join("log", "rabbit.log")).and_return(logger)
+      allow(Rabbit.config).to receive(:publish_logger) { publish_logger }
+
       expect(channel).to receive(:confirm_select).once
       expect(channel).to receive(:wait_for_confirms).and_return(true)
       expect(channel).to receive(:basic_publish).with(
@@ -42,7 +43,9 @@ RSpec.describe Rabbit do
           headers: { "foo" => "bar" },
         ),
       )
+    end
 
+    it "publishes" do # rubocop:disable RSpec/ExampleLength
       if expect_to_use_job
         log_line = 'test_group_id.test_project_id.some_exchange / some_queue / ' \
                    'some_event / confirm: {"hello"=>"world"}'
@@ -68,7 +71,7 @@ RSpec.describe Rabbit do
         expect(Rabbit::Publishing::Job).not_to receive(:perform_later)
       end
 
-      expect(logger).to receive(:debug).with(log_line).once
+      expect(publish_logger).to receive(:debug).with(log_line).once
       described_class.publish(message_options)
     end
 

@@ -66,7 +66,7 @@ module Rabbit
     end
 
     def log(message)
-      @logger ||= Logger.new(Rails.root.join("log", "rabbit.log"))
+      @logger ||= Rabbit.config.publish_logger
 
       headers = [
         message.real_exchange_name, message.routing_key, message.event,
