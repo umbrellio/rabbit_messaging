@@ -6,7 +6,6 @@ require "rabbit/version"
 require "rabbit/daemon"
 require "rabbit/publishing"
 require "rabbit/event_handler"
-require "rabbit/logger"
 
 require "rabbit/extensions/bunny/channel"
 
@@ -26,24 +25,16 @@ module Rabbit
     attribute :exception_notifier, default: -> { default_exception_notifier }
 
     attribute :receive_logger, default: lambda {
-      ::Logger.new(Rails.root.join("log", "incoming_rabbit_messages.log"))
+      Logger.new(Rails.root.join("log", "incoming_rabbit_messages.log"))
     }
 
     attribute :publish_logger, default: lambda {
-      ::Logger.new(Rails.root.join("log", "rabbit.log"))
+      Logger.new(Rails.root.join("log", "rabbit.log"))
     }
 
     attribute :malformed_logger, default: lambda {
-      ::Logger.new(Rails.root.join("log", "malformed_messages.log"))
+      Logger.new(Rails.root.join("log", "malformed_messages.log"))
     }
-
-    def initialize(params = {})
-      super(params)
-
-      self.receive_logger   = Rabbit::Logger.wrap(receive_logger)
-      self.publish_logger   = Rabbit::Logger.wrap(publish_logger)
-      self.malformed_logger = Rabbit::Logger.wrap(malformed_logger)
-    end
 
     def validate!
       raise InvalidConfig, "mising project_id" unless project_id
