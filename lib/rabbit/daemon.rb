@@ -24,9 +24,11 @@ module Rabbit
         **config,
       )
 
-      Sneakers.logger = Logger.new(Rails.root.join("log", "sneakers.log"))
-      Sneakers.logger.level = Logger::DEBUG
-      Lamian.extend_logger(Sneakers.logger)
+      unless Sneakers.logger
+        Sneakers.logger = Logger.new(Rails.root.join("log", "sneakers.log"))
+        Sneakers.logger.level = Logger::DEBUG
+        Lamian.extend_logger(Sneakers.logger)
+      end  
 
       Sneakers.server = true
 
