@@ -13,6 +13,10 @@ module Rabbit::Receiving
   class Worker
     include Sneakers::Worker
 
+    class << self
+      attr_writer :logger
+    end
+
     def self.logger
       @logger ||= Logger.new(Rails.root.join("log", "incoming_rabbit_messages.log"))
     end

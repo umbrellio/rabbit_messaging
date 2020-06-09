@@ -10,6 +10,12 @@ module Rabbit
 
     extend self
 
+    attr_writer :logger
+
+    def logger
+      @logger ||= Logger.new(Rails.root.join("log", "rabbit.log"))
+    end
+
     def publish(message)
       return unless client
 
@@ -66,14 +72,12 @@ module Rabbit
     end
 
     def log(message)
-      @logger ||= Logger.new(Rails.root.join("log", "rabbit.log"))
-
       headers = [
         message.real_exchange_name, message.routing_key, message.event,
         message.confirm_select? ? "confirm" : "no-confirm"
       ]
 
-      @logger.debug "#{headers.join ' / '}: #{message.data}"
+      logger.debug "#{headers.join ' / '}: #{message.data}"
     end
   end
 end
