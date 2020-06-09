@@ -5,7 +5,7 @@ module Rabbit::Receiving
     attr_accessor :message_model, :errors
 
     def self.logger
-      @logger ||= Logger.new(Rails.root.join("log", "malformed_messages.log"))
+      @logger ||= Rabbit.config.malformed_logger
     end
 
     def self.raise!(message_model, errors, backtrace = caller(1))

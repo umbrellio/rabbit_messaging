@@ -24,6 +24,18 @@ module Rabbit
     attribute :receiving_job_class_callable
     attribute :exception_notifier, default: -> { default_exception_notifier }
 
+    attribute :receive_logger, default: lambda {
+      Logger.new(Rails.root.join("log", "incoming_rabbit_messages.log"))
+    }
+
+    attribute :publish_logger, default: lambda {
+      Logger.new(Rails.root.join("log", "rabbit.log"))
+    }
+
+    attribute :malformed_logger, default: lambda {
+      Logger.new(Rails.root.join("log", "malformed_messages.log"))
+    }
+
     def validate!
       raise InvalidConfig, "mising project_id" unless project_id
       raise InvalidConfig, "mising group_id" unless group_id

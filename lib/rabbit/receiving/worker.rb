@@ -14,7 +14,7 @@ module Rabbit::Receiving
     include Sneakers::Worker
 
     def self.logger
-      @logger ||= Logger.new(Rails.root.join("log", "incoming_rabbit_messages.log"))
+      @logger ||= Rabbit.config.receive_logger
     end
 
     def work_with_params(message, delivery_info, arguments)
