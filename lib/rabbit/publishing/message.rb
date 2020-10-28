@@ -6,13 +6,14 @@ module Rabbit::Publishing
   class Message
     include Tainbox
 
-    attribute :routing_key, String
-    attribute :event, String
-    attribute :data, default: {}
-    attribute :exchange_name, default: []
+    attribute :routing_key,    String
+    attribute :event,          String
+    attribute :data,           default: {}
+    attribute :exchange_name,  default: []
     attribute :confirm_select, default: true
-    attribute :realtime, default: false
+    attribute :realtime,       default: false
     attribute :headers
+    attribute :message_id
 
     alias_method :confirm_select?, :confirm_select
     alias_method :realtime?, :realtime
@@ -41,6 +42,7 @@ module Rabbit::Publishing
         content_type: "application/json",
         app_id: Rabbit.config.app_name,
         headers: headers,
+        message_id: message_id,
       }
 
       [JSON.dump(data), real_exchange_name, routing_key.to_s, options]

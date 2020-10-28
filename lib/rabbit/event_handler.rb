@@ -8,6 +8,7 @@ class Rabbit::EventHandler
 
   attribute :project_id
   attr_accessor :data
+
   class_attribute :queue
   class_attribute :ignore_queue_conversion, default: false
 

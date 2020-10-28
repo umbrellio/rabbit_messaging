@@ -1,200 +1,203 @@
 # frozen_string_literal: true
 
 require_relative "dummy/some_group"
+require_relative "../../../lib/rabbit/receiving/job"
 
 describe "Receiving messages" do
-  def work
-    worker.work_with_params(message, nil, type: event, app_id: "some_group.some_app")
+  let(:worker)        { Rabbit::Receiving::Worker.new }
+  let(:message)       { { hello: "world", foo: "bar" }.to_json }
+  let(:delivery_info) { { exchange: "some exchange", routing_key: "some_key"} }
+  let(:arguments)     { { type: event, app_id: "some_group.some_app" } }
+  let(:event)         { "some_successful_event" }
+  let(:job_class)     { Rabbit::Receiving::Job }
+  let(:notifier)      { ExceptionNotifier }
+  let(:conversion)    { false }
+  let(:handler)       { Rabbit::Handler::SomeGroup::SomeSuccessfulEvent }
+
+  def expect_job_queue_to_be_set
+    expect(job_class).to receive(:set).with(queue: queue)
   end
 
-  let(:worker) { Rabbit::Receiving::Worker.new }
-  let(:message) { { hello: "world", foo: "bar" }.to_json }
-  let(:event) { "some_successful_event" }
+  def expect_handler_to_be_called
+    expect_any_instance_of(handler).to receive(:call) do |instance|
+      expect(instance.hello).to eq("world")
+      expect(instance.data).to eq(hello: "world", foo: "bar")
+    end
+  end
 
-  before { Rabbit.config.queue_name_conversion = -> (queue) { "#{queue}_prepared" } }
+  def expect_notification
+    expect(notifier).to receive(:notify_exception)
+  end
+
+  before do
+    Rabbit.config.queue_name_conversion = -> (queue) { "#{queue}_prepared" }
+
+    allow(job_class).to receive(:set).with(queue: queue).and_call_original
+    allow(notifier).to receive(:notify_exception).and_call_original
+
+    handler.ignore_queue_conversion = conversion
+  end
+
+  after do
+    worker.work_with_params(message, delivery_info, arguments)
+  end
+
+  shared_examples "check job queue and handler" do
+    specify do
+      expect_job_queue_to_be_set
+      expect_handler_to_be_called
+    end
+  end
 
   context "job enqueued successfully" do
     context "message is valid" do
       context "handler is found" do
-        specify "job performs successfully" do
-          expect(ExceptionNotifier).not_to receive(:notify_exception)
-          queue = "world_some_successful_event_prepared"
-          expect(Rabbit::Receiving::Job).to receive(:set).with(queue: queue).and_call_original
+        let(:queue) { "world_some_successful_event_prepared" }
 
-          klass = Rabbit::Handler::SomeGroup::SomeSuccessfulEvent
-          expect_any_instance_of(klass).to receive(:call) do |instance|
-            expect(instance.hello).to eq("world")
-            expect(instance.data).to eq(hello: "world", foo: "bar")
-          end
+        it "performs job successfully" do
+          expect(notifier).not_to receive(:notify_exception)
 
-          work
+          expect_job_queue_to_be_set
+          expect_handler_to_be_called
         end
 
         context "job performs unsuccessfully" do
           let(:event) { "some_unsuccessful_event" }
+          let(:queue) { "custom_prepared" }
 
           it "notifies about exception" do
-            expect(Rabbit::Receiving::Job).to receive(:set).with(queue: "custom_prepared")
-                                                  .and_call_original
-            expect(ExceptionNotifier).to receive(:notify_exception) do |exception|
+            expect_job_queue_to_be_set
+
+            expect_notification do |exception|
               expect(exception.message).to eq("Unsuccessful event error")
             end
-            work
           end
         end
 
         context "queue name convertion ignorance" do
-          let(:klass) { Rabbit::Handler::SomeGroup::SomeSuccessfulEvent }
-
-          shared_examples "event call" do
-            specify "successfully called" do
-              klass = Rabbit::Handler::SomeGroup::SomeSuccessfulEvent
-              expect_any_instance_of(klass).to receive(:call) do |instance|
-                expect(instance.hello).to eq("world")
-                expect(instance.data).to eq(hello: "world", foo: "bar")
-              end
-
-              work
-            end
-          end
-
           context "with ignorance" do
+            let(:conversion) { true }
+
             context "with queue name option (explicitly defined)" do
-              before { klass.ignore_queue_conversion = true }
+              let(:queue) { "world_some_successful_event" }
 
-              after  { klass.ignore_queue_conversion = false }
-
-              it "uses original queue name" do
-                expect(Rabbit::Receiving::Job).to(
-                  receive(:set).with(queue: "world_some_successful_event"),
-                )
-
-                work
+              it "uses original queue name, calls event" do
+                expect_job_queue_to_be_set
+                expect_handler_to_be_called
               end
-
-              include_examples "event call"
             end
 
             context "without queue name option (implicit :default)" do
-              let(:klass) { Rabbit::Handler::SomeGroup::EmptySuccessfulEvent }
-              let(:event) { "empty_successful_event" }
+              let(:handler) { Rabbit::Handler::SomeGroup::EmptySuccessfulEvent }
+              let(:event)   { "empty_successful_event" }
+              let(:queue)   { "default_prepared" } 
 
-              before { klass.ignore_queue_conversion = true }
-
-              after  { klass.ignore_queue_conversion = false }
+              # let(:queue)   { :default }
 
               it "uses original :default queue name" do
-                expect(Rabbit::Receiving::Job).to(
-                  receive(:set).with(queue: :default),
-                )
-
-                work
+                expect_job_queue_to_be_set
+                expect_handler_to_be_called
               end
             end
           end
 
           context "without ignorance" do
-            before { klass.ignore_queue_conversion = false }
-
-            after  { klass.ignore_queue_conversion = false }
+            let(:conversion) { false }
+            let(:queue)      { "world_some_successful_event_prepared" }
 
             it "uses calculated queue name" do
-              expect(Rabbit::Receiving::Job).to(
-                receive(:set).with(queue: "world_some_successful_event_prepared"),
-              )
-
-              work
+              expect_job_queue_to_be_set
+              expect_handler_to_be_called
             end
 
-            include_examples "event call"
-
             context "without queue name option (implicit :default)" do
-              let(:klass) { Rabbit::Handler::SomeGroup::EmptySuccessfulEvent }
-              let(:event) { "empty_successful_event" }
-
-              before { klass.ignore_queue_conversion = false }
-
-              after  { klass.ignore_queue_conversion = false }
+              let(:handler) { Rabbit::Handler::SomeGroup::EmptySuccessfulEvent }
+              let(:event)   { "empty_successful_event" }
+              let(:queue)   { "default_prepared" }
 
               it "uses original :default queue name" do
-                expect(Rabbit::Receiving::Job).to(
-                  receive(:set).with(queue: "default_prepared"),
-                )
-
-                work
+                expect_job_queue_to_be_set
+                expect_handler_to_be_called
               end
             end
           end
 
           context "default (false)" do
+            let(:queue) { "world_some_successful_event_prepared" }
+
             it "uses calculated queue name" do
-              expect(Rabbit::Receiving::Job).to(
-                receive(:set).with(queue: "world_some_successful_event_prepared"),
-              )
-
-              work
+              expect_job_queue_to_be_set
+              expect_handler_to_be_called
             end
-
-            include_examples "event call"
           end
         end
       end
 
       context "handler is not found" do
         let(:event) { "no_such_event" }
+        let(:queue) { "default_prepared" }
 
+        let(:error_msg) do
+          <<~ERROR.squish
+            "no_such_event" event from "some_group" group is not supported,
+            it requires a "Rabbit::Handler::SomeGroup::NoSuchEvent" class inheriting
+            from "Rabbit::EventHandler" to be defined
+          ERROR
+        end
+
+        # can't set job, raises unsuppoerted event when tries to determine handler
         it "notifies about exception" do
-          expect(Rabbit::Receiving::Job).to receive(:set).with(queue: "default_prepared")
-                                                .and_call_original
-          expect(ExceptionNotifier).to receive(:notify_exception) do |exception|
-            expect(exception.message).to eq <<~ERROR.squish
-              "no_such_event" event from "some_group" group is not supported,
-              it requires a "Rabbit::Handler::SomeGroup::NoSuchEvent" class inheriting
-              from "Rabbit::EventHandler" to be defined
-            ERROR
+          expect_notification do |exception|
+            expect(exception.message).to eq(error_msg)
           end
-          work
         end
       end
     end
 
     context "message is malformed" do
       let(:message) { "invalid_json" }
+      let(:queue)   { "default_prepared" }
 
+      # can't set job, raises malformed message when tries to determine queue name
       it "notifies about exception" do
-        expect(Rabbit::Receiving::Job).to receive(:set).with(queue: "default_prepared")
-                                              .and_call_original
-        expect(ExceptionNotifier).to receive(:notify_exception)
-                                         .with(Rabbit::Receiving::MalformedMessage)
-        work
+        expect_notification.with(Rabbit::Receiving::MalformedMessage)
       end
     end
 
     context "custom receiving job" do
-      let(:custom_job) { class_double("CustomJob") }
+      let(:custom_job_class) { class_double("CustomJobClass") }
+      let(:custom_job)       { double("CustomJob") }
+      let(:queue)            { "world_some_successful_event_prepared" }
 
       before do
-        Rabbit.config.receiving_job_class_callable = -> { custom_job }
+        allow(Rabbit.config).to receive(:receiving_job_class_callable)
+          .and_return(-> { custom_job_class })
+
+        allow(custom_job_class).to receive(:set).with(queue: queue).and_return(custom_job)
+        allow(custom_job).to receive(:perform_later)
       end
 
-      it "works" do
-        expect(Rabbit::Receiving::Job).not_to receive(:set)
-        expect(custom_job).to receive(:set).with(queue: "world_some_successful_event_prepared")
-        work
+      it "calls custom job" do
+        expect(job_class).not_to receive(:set).with(queue: queue)
+        expect(custom_job_class).to receive(:set).with(queue: queue)
+        expect(custom_job).to receive(:perform_later)
       end
     end
   end
 
-  specify "job enqueued unsuccessfully" do
-    error = RuntimeError.new("Queueing error")
-    job = double("job")
-    queue = "world_some_successful_event_prepared"
+  context "job enqueued unsuccessfully" do
+    let(:error) { RuntimeError.new("Queueing error") }
+    let(:job)   { double("job") }
+    let(:queue) { "world_some_successful_event_prepared" }
 
-    allow(Rabbit::Receiving::Job).to receive(:set).with(queue: queue).and_return(job)
-    allow(job).to receive(:perform_later).and_raise(error)
-    expect(ExceptionNotifier).to receive(:notify_exception).with(error)
-    expect(worker).to receive(:requeue!)
+    before do
+      allow(job_class).to receive(:set).with(queue: queue).and_return(job)
+      allow(job).to receive(:perform_later).and_raise(error)
+    end
 
-    work
+    specify do
+      expect_notification.with(error)
+      expect(worker).to receive(:requeue!)
+    end
   end
 end
