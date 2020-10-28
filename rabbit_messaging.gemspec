@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "rabbit/version"
 
 Gem::Specification.new do |spec|
-  spec.required_ruby_version = ">= 2.4"
+  spec.required_ruby_version = ">= 2.5"
 
   spec.name    = "rabbit_messaging"
   spec.version = Rabbit::VERSION
