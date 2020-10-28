@@ -16,15 +16,15 @@ module Rabbit::Receiving
     attribute :data
     attribute :original_message
 
-    def self.build(message, type:, app_id:, message_id: nil, **)
-      group_id, project_id = app_id.split(".")
+    def self.build(message, arguments)
+      group_id, project_id = arguments.fetch(:app_id).split(".")
 
       new(
         group_id: group_id,
         project_id: project_id,
-        event: type,
+        event: arguments.fetch(:type),
         data: message,
-        message_id: message_id,
+        message_id: arguments.fetch(:message_id, nil),
       )
     end
 

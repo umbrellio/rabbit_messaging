@@ -21,10 +21,10 @@ class Rabbit::Receiving::Queue
     if queue_name
       calculated_queue_name
     else
-      default_queue_name(ignore_conversion: ignore_conversion)
+      Rabbit.default_queue_name(ignore_conversion: ignore_conversion)
     end
   rescue
-    default_queue_name
+    Rabbit.default_queue_name
   end
 
   private
@@ -35,9 +35,5 @@ class Rabbit::Receiving::Queue
 
   def calculated_queue_name
     Rabbit.queue_name(queue_name, ignore_conversion: ignore_conversion)
-  end
-
-  def default_queue_name
-    Rabbit.default_queue_name
   end
 end

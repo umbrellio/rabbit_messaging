@@ -7,20 +7,29 @@ describe "Receiving messages" do
   let(:worker)        { Rabbit::Receiving::Worker.new }
   let(:message)       { { hello: "world", foo: "bar" }.to_json }
   let(:delivery_info) { { exchange: "some exchange", routing_key: "some_key"} }
-  let(:arguments)     { { type: event, app_id: "some_group.some_app" } }
+  let(:arguments)     { { type: event, app_id: "some_group.some_app", message_id: 123 } }
   let(:event)         { "some_successful_event" }
   let(:job_class)     { Rabbit::Receiving::Job }
   let(:notifier)      { ExceptionNotifier }
   let(:conversion)    { false }
   let(:handler)       { Rabbit::Handler::SomeGroup::SomeSuccessfulEvent }
+  let(:before_hook)   { double("before hook") }
+  let(:after_hook)    { double("after hook") }
+  let(:message_info)  { arguments.merge(delivery_info.slice(:exchange, :routing_key)) }
 
   def expect_job_queue_to_be_set
     expect(job_class).to receive(:set).with(queue: queue)
   end
 
-  def expect_handler_to_be_called
+  def expect_some_handler_to_be_called
     expect_any_instance_of(handler).to receive(:call) do |instance|
       expect(instance.hello).to eq("world")
+      expect(instance.data).to eq(hello: "world", foo: "bar")
+    end
+  end
+
+  def expect_empty_handler_to_be_called
+    expect_any_instance_of(handler).to receive(:call) do |instance|
       expect(instance.data).to eq(hello: "world", foo: "bar")
     end
   end
@@ -29,11 +38,20 @@ describe "Receiving messages" do
     expect(notifier).to receive(:notify_exception)
   end
 
+  def expect_hooks_to_be_called
+    expect(before_hook).to receive(:call).with(message, message_info)
+    expect(after_hook).to receive(:call).with(message, message_info)
+  end
+
   before do
     Rabbit.config.queue_name_conversion = -> (queue) { "#{queue}_prepared" }
+    Rabbit.config.receiving_hooks       = { before: [before_hook], after:  [after_hook] }
 
     allow(job_class).to receive(:set).with(queue: queue).and_call_original
     allow(notifier).to receive(:notify_exception).and_call_original
+
+    allow(before_hook).to receive(:call).with(message, message_info)
+    allow(after_hook).to receive(:call).with(message, message_info)
 
     handler.ignore_queue_conversion = conversion
   end
@@ -42,10 +60,11 @@ describe "Receiving messages" do
     worker.work_with_params(message, delivery_info, arguments)
   end
 
-  shared_examples "check job queue and handler" do
+  shared_examples "check job queue and some handler" do
     specify do
       expect_job_queue_to_be_set
-      expect_handler_to_be_called
+      expect_some_handler_to_be_called
+      expect_hooks_to_be_called
     end
   end
 
@@ -58,7 +77,7 @@ describe "Receiving messages" do
           expect(notifier).not_to receive(:notify_exception)
 
           expect_job_queue_to_be_set
-          expect_handler_to_be_called
+          expect_some_handler_to_be_called
         end
 
         context "job performs unsuccessfully" do
@@ -81,22 +100,18 @@ describe "Receiving messages" do
             context "with queue name option (explicitly defined)" do
               let(:queue) { "world_some_successful_event" }
 
-              it "uses original queue name, calls event" do
-                expect_job_queue_to_be_set
-                expect_handler_to_be_called
-              end
+              include_examples "check job queue and some handler"
             end
 
             context "without queue name option (implicit :default)" do
               let(:handler) { Rabbit::Handler::SomeGroup::EmptySuccessfulEvent }
               let(:event)   { "empty_successful_event" }
-              let(:queue)   { "default_prepared" } 
-
-              # let(:queue)   { :default }
+              let(:queue)   { :default }
 
               it "uses original :default queue name" do
                 expect_job_queue_to_be_set
-                expect_handler_to_be_called
+                expect_empty_handler_to_be_called
+                expect_hooks_to_be_called
               end
             end
           end
@@ -105,10 +120,7 @@ describe "Receiving messages" do
             let(:conversion) { false }
             let(:queue)      { "world_some_successful_event_prepared" }
 
-            it "uses calculated queue name" do
-              expect_job_queue_to_be_set
-              expect_handler_to_be_called
-            end
+            include_examples "check job queue and some handler"            
 
             context "without queue name option (implicit :default)" do
               let(:handler) { Rabbit::Handler::SomeGroup::EmptySuccessfulEvent }
@@ -117,7 +129,8 @@ describe "Receiving messages" do
 
               it "uses original :default queue name" do
                 expect_job_queue_to_be_set
-                expect_handler_to_be_called
+                expect_empty_handler_to_be_called
+                expect_hooks_to_be_called
               end
             end
           end
@@ -125,10 +138,7 @@ describe "Receiving messages" do
           context "default (false)" do
             let(:queue) { "world_some_successful_event_prepared" }
 
-            it "uses calculated queue name" do
-              expect_job_queue_to_be_set
-              expect_handler_to_be_called
-            end
+            include_examples "check job queue and some handler"
           end
         end
       end
