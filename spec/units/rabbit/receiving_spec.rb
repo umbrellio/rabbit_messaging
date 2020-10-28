@@ -6,7 +6,7 @@ require_relative "../../../lib/rabbit/receiving/job"
 describe "Receiving messages" do
   let(:worker)        { Rabbit::Receiving::Worker.new }
   let(:message)       { { hello: "world", foo: "bar" }.to_json }
-  let(:delivery_info) { { exchange: "some exchange", routing_key: "some_key"} }
+  let(:delivery_info) { { exchange: "some exchange", routing_key: "some_key" } }
   let(:arguments)     { { type: event, app_id: "some_group.some_app", message_id: 123 } }
   let(:event)         { "some_successful_event" }
   let(:job_class)     { Rabbit::Receiving::Job }
@@ -120,7 +120,7 @@ describe "Receiving messages" do
             let(:conversion) { false }
             let(:queue)      { "world_some_successful_event_prepared" }
 
-            include_examples "check job queue and some handler"            
+            include_examples "check job queue and some handler"
 
             context "without queue name option (implicit :default)" do
               let(:handler) { Rabbit::Handler::SomeGroup::EmptySuccessfulEvent }
