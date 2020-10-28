@@ -7,7 +7,7 @@ describe "Receiving messages" do
   let(:worker)        { Rabbit::Receiving::Worker.new }
   let(:message)       { { hello: "world", foo: "bar" }.to_json }
   let(:delivery_info) { { exchange: "some exchange", routing_key: "some_key" } }
-  let(:arguments)     { { type: event, app_id: "some_group.some_app", message_id: 123 } }
+  let(:arguments)     { { type: event, app_id: "some_group.some_app", message_id: "uuid" } }
   let(:event)         { "some_successful_event" }
   let(:job_class)     { Rabbit::Receiving::Job }
   let(:notifier)      { ExceptionNotifier }
@@ -25,12 +25,14 @@ describe "Receiving messages" do
     expect_any_instance_of(handler).to receive(:call) do |instance|
       expect(instance.hello).to eq("world")
       expect(instance.data).to eq(hello: "world", foo: "bar")
+      expect(instance.message_info).to include(message_info)
     end
   end
 
   def expect_empty_handler_to_be_called
     expect_any_instance_of(handler).to receive(:call) do |instance|
       expect(instance.data).to eq(hello: "world", foo: "bar")
+      expect(instance.message_info).to include(message_info)
     end
   end
 

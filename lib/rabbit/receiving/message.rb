@@ -11,9 +11,9 @@ module Rabbit::Receiving
     attribute :group_id
     attribute :project_id
     attribute :message_id
-    attribute :routing_key
     attribute :event
     attribute :data
+    attribute :arguments
     attribute :original_message
 
     def self.build(message, arguments)
@@ -25,6 +25,7 @@ module Rabbit::Receiving
         event: arguments.fetch(:type),
         data: message,
         message_id: arguments.fetch(:message_id, nil),
+        arguments: arguments,
       )
     end
 
