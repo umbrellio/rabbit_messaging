@@ -71,24 +71,21 @@ require "rabbit_messaging"
       config.exception_notifier = proc { |e| MyCoolNotifier.notify!(e) }
     ```
 
-  * `receiving_hooks` (`Hash of Arrays With Procs`)
+  * `before_receiving_hooks, after_receiving_hooks` (`Array of Procs`)
 
-    Before and after hooks with message processing in the middle. 
+    Before and after hooks with message processing in the middle. Where `before_receiving_hooks` and `after_receiving_hooks` are empty arrays by default.
+    
     It's advised to NOT place procs with long execution time inside.
 
     Setup:
 
     ```ruby
-      config.receiving_hooks = {
-        before: [
-          -> (message, arguments) { do_stuff_1 },
-          -> (message, arguments) { do_stuff_2 },
-        ],
-        after: [
-          -> (message, arguments) { do_stuff_3 },
-          -> (message, arguments) { do_stuff_4 },
-        ],
-      }
+      config.before_receiving_hooks.append(proc { |message, arguments| do_stuff_1 })
+      config.before_receiving_hooks.append(proc { |message, arguments| do_stuff_2 })
+
+      config.after_receiving_hooks.append(proc { |message, arguments| do_stuff_3 })
+      config.after_receiving_hooks.append(proc { |message, arguments| do_stuff_4 })
+
     ```
 ---
 

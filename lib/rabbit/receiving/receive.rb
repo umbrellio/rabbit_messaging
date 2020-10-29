@@ -16,9 +16,9 @@ class Rabbit::Receiving::Receive
 
   def call
     log!
-    call_hooks(:before)
+    call_hooks(before_hooks)
     process_message
-    call_hooks(:after)
+    call_hooks(after_hooks)
   end
 
   def log!
@@ -33,14 +33,18 @@ class Rabbit::Receiving::Receive
       .perform_later(message, message_info)
   end
 
-  def call_hooks(type)
-    hooks(type).each do |hook_proc|
+  def call_hooks(hooks)
+    hooks.each do |hook_proc|
       hook_proc.call(message, message_info)
     end
   end
 
-  def hooks(type)
-    Rabbit.config.receiving_hooks.fetch(type, [])
+  def before_hooks
+    Rabbit.config.before_receiving_hooks || []
+  end
+
+  def after_hooks
+    Rabbit.config.after_receiving_hooks || []
   end
 
   def message_info

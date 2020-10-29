@@ -23,7 +23,8 @@ module Rabbit
     attribute :queue_name_conversion
     attribute :receiving_job_class_callable
     attribute :exception_notifier, default: -> { default_exception_notifier }
-    attribute :receiving_hooks, default: {}
+    attribute :before_receiving_hooks, default: []
+    attribute :after_receiving_hooks, default: []
 
     attribute :receive_logger, default: lambda {
       Logger.new(Rails.root.join("log", "incoming_rabbit_messages.log"))

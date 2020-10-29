@@ -47,7 +47,9 @@ describe "Receiving messages" do
 
   before do
     Rabbit.config.queue_name_conversion = -> (queue) { "#{queue}_prepared" }
-    Rabbit.config.receiving_hooks       = { before: [before_hook], after:  [after_hook] }
+
+    Rabbit.config.before_receiving_hooks = [before_hook]
+    Rabbit.config.after_receiving_hooks  = [after_hook]
 
     allow(job_class).to receive(:set).with(queue: queue).and_call_original
     allow(notifier).to receive(:notify_exception).and_call_original
