@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "bunny", "~> 2.0"
   spec.add_runtime_dependency "exception_notification"
   spec.add_runtime_dependency "lamian"
-  spec.add_runtime_dependency "rails", ">= 6.0"
+  spec.add_runtime_dependency "rails"
   spec.add_runtime_dependency "sneakers", "~> 2.0"
   spec.add_runtime_dependency "tainbox"
 
