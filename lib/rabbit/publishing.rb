@@ -5,78 +5,12 @@ require "rabbit/publishing/message"
 module Rabbit
   module Publishing
     autoload :Job, "rabbit/publishing/job"
+    autoload :ChannelsPool, "rabbit/publishing/channels_pool"
     extend self
 
     MUTEX = Mutex.new
 
-    class ChannelsPool
-      class BaseQueue < Queue
-        def initialize(session, max_size)
-          @session    = session
-          @max_size   = max_size
-          @ch_size    = 0
-          @create_mon = Mutex.new
-        end
-
-        def pop
-          create_channel if size == 0
-
-          super
-        end
-
-        def push(ch)
-          return @ch_size -= 1 unless ch&.open?
-
-          super
-        end
-
-        def init_channel
-          @create_mon.synchronize do
-            return unless @ch_size < @max_size
-
-            push create_channel
-            @ch_size += 1
-
-            channel
-          end
-        end
-
-        private
-
-        def create_channel
-          @session.create_channel
-        end
-      end
-
-      class ConfirmQueue < BaseQueue
-        def create_channel
-          @session.create_channel.confirm_select
-        end
-      end
-
-      def initialize(session)
-        max_size = session.channel_max
-
-        @pools = {
-          true:  ConfirmQueue.new(session, max_size/2),
-          false: BaseQueue.new(session, max_size/2)
-        }.freeze
-      end
-
-      def with_channel(confirm)
-        pool = @pools[confirm]
-        ch = pool.pop
-        yield ch
-      ensure
-        pool.push ch
-      end
-    end
-
     def publish(msg)
-      # return unless client
-
-      # channel = channel(message.confirm_select?)
-      # channel.basic_publish(*message.basic_publish_args)
       return if Rabbit.config.environment.in? %i[test development]
 
       pool.with_channel msg.confirm_select? do |ch|
