@@ -30,7 +30,7 @@ module Rabbit
     end
 
     def pool
-      MUTEX.synchronize { @pool = ChannelsPool.new(create_client) }
+      MUTEX.synchronize { @pool ||= ChannelsPool.new(create_client) }
     end
 
     private

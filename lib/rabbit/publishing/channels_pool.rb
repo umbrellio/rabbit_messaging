@@ -1,6 +1,8 @@
     class ChannelsPool
       class BaseQueue < Queue
         def initialize(session, max_size)
+          super()
+
           @session    = session
           @max_size   = max_size - 1
           @ch_size    = 0
@@ -8,7 +10,7 @@
         end
 
         def pop
-          create_channel if size == 0
+          add_channel if size == 0
 
           super
         end
@@ -19,14 +21,12 @@
           super
         end
 
-        def init_channel
+        def add_channel
           @create_mon.synchronize do
             return unless @ch_size < @max_size
 
             push create_channel
             @ch_size += 1
-
-            channel
           end
         end
 
@@ -39,7 +39,10 @@
 
       class ConfirmQueue < BaseQueue
         def create_channel
-          @session.create_channel.confirm_select
+          ch = @session.create_channel
+          ch.confirm_select
+
+          ch
         end
       end
 
@@ -47,8 +50,8 @@
         max_size = session.channel_max
 
         @pools = {
-          true:  ConfirmQueue.new(session, max_size/2),
-          false: BaseQueue.new(session, max_size/2)
+          true  => ConfirmQueue.new(session, max_size/2),
+          false => BaseQueue.new(session, max_size/2)
         }.freeze
       end
 
