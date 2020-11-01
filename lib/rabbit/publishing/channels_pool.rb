@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Rabbit
-  class Publishing
+  module Publishing
     class ChannelsPool
       class BaseQueue < Queue
         def initialize(session, max_size)
