@@ -34,12 +34,14 @@ describe Rabbit::Publishing::Message do
       its(:basic_publish_args) do
         is_expected.to eq [
           { foo: :bar }.to_json, "test_group_id.test_project_id.fanout", "nah",
-          mandatory: true,
-          persistent: true,
-          type: "ping",
-          content_type: "application/json",
-          app_id: "test_group_id.test_project_id",
-          headers: { "foo" => "bar" }
+          {
+            mandatory: true,
+            persistent: true,
+            type: "ping",
+            content_type: "application/json",
+            app_id: "test_group_id.test_project_id",
+            headers: { "foo" => "bar" },
+          }
         ]
       end
     end
@@ -55,12 +57,14 @@ describe Rabbit::Publishing::Message do
       its(:basic_publish_args) do
         is_expected.to eq [
           %({"ip":"::1"}), "test_group_id.test_project_id.fanout", "nah",
-          mandatory: true,
-          persistent: true,
-          type: "update",
-          content_type: "application/json",
-          app_id: "test_group_id.test_project_id",
-          headers: {}
+          {
+            mandatory: true,
+            persistent: true,
+            type: "update",
+            content_type: "application/json",
+            app_id: "test_group_id.test_project_id",
+            headers: {},
+          }
         ]
       end
     end
