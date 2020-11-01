@@ -28,7 +28,7 @@ module Rabbit
         Sneakers.logger = Logger.new(Rails.root.join("log", "sneakers.log"))
         Sneakers.logger.level = Logger::DEBUG
         Lamian.extend_logger(Sneakers.logger)
-      end  
+      end
 
       Sneakers.server = true
 

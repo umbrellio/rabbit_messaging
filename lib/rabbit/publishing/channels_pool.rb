@@ -17,8 +17,8 @@ class ChannelsPool
       super
     end
 
-    def push(ch)
-      return @ch_size -= 1 unless ch&.open?
+    def push(channel)
+      return @ch_size -= 1 unless channel&.open?
 
       super
     end
@@ -52,7 +52,7 @@ class ChannelsPool
     max_size = session.channel_max
 
     @pools = {
-      true  => ConfirmQueue.new(session, max_size / 2),
+      true => ConfirmQueue.new(session, max_size / 2),
       false => BaseQueue.new(session, max_size / 2),
     }.freeze
   end
