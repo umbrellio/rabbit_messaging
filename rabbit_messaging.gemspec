@@ -34,5 +34,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rspec"
   spec.add_development_dependency "rspec-its"
   spec.add_development_dependency "rubocop-config-umbrellio"
-  spec.add_development_dependency "simplecov"
+  spec.add_development_dependency "simplecov", "> 0.7"
 end
