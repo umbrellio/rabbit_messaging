@@ -11,6 +11,7 @@ module Rabbit
           @max_size   = max_size - 1
           @ch_size    = 0
           @create_mon = Mutex.new
+          @ch_dec_mon = Mutex.new
         end
 
         def pop
@@ -20,7 +21,7 @@ module Rabbit
         end
 
         def push(channel)
-          return @ch_size -= 1 unless channel&.open?
+          return @ch_dec_mon.synchronize { @ch_size -= 1 } unless channel&.open?
 
           super
         end
