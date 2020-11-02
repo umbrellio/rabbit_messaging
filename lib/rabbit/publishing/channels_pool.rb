@@ -19,12 +19,14 @@ module Rabbit
 
           super
         end
+        alias :deq :pop
 
         def push(channel)
           return @ch_dec_mon.synchronize { @ch_size -= 1 } unless channel&.open?
 
           super
         end
+        alias :enq :push
 
         def add_channel
           @create_mon.synchronize do
@@ -62,10 +64,10 @@ module Rabbit
 
       def with_channel(confirm)
         pool = @pools[confirm]
-        ch = pool.pop
+        ch = pool.deq
         yield ch
       ensure
-        pool.push ch
+        pool.enq ch
       end
     end
   end
