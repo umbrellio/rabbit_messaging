@@ -19,14 +19,14 @@ module Rabbit
 
           super
         end
-        alias :deq :pop
+        alias_method :deq, :pop
 
         def push(channel)
           return @ch_dec_mon.synchronize { @ch_size -= 1 } unless channel&.open?
 
           super
         end
-        alias :enq :push
+        alias_method :enq, :push
 
         def add_channel
           @create_mon.synchronize do
