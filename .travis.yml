@@ -5,6 +5,7 @@ matrix:
   - rvm: 2.5
   - rvm: 2.6
   - rvm: 2.7
+  - rvm: ruby-head
   allow_failures:
   - rvm: ruby-head
 sudo: false
