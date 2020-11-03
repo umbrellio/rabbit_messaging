@@ -9,6 +9,7 @@ RSpec.describe Rabbit do
       data: { hello: :world },
       realtime: realtime,
       headers: { "foo" => "bar" },
+      message_id: "uuid",
     }
   end
 
@@ -41,6 +42,7 @@ RSpec.describe Rabbit do
           content_type: "application/json",
           app_id: "test_group_id.test_project_id",
           headers: { "foo" => "bar" },
+          message_id: "uuid",
         ),
       )
     end
@@ -60,6 +62,7 @@ RSpec.describe Rabbit do
           confirm_select: true,
           realtime: realtime,
           headers: { "foo" => "bar" },
+          message_id: "uuid",
         }
         expect_any_instance_of(ActiveJob::ConfiguredJob).to receive(:perform_later)
                                                                 .with(perform_params)

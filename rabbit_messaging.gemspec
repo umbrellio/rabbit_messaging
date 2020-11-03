@@ -5,7 +5,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require "rabbit/version"
 
 Gem::Specification.new do |spec|
-  spec.required_ruby_version = ">= 2.3.8"
+  spec.required_ruby_version = ">= 2.5"
 
   spec.name    = "rabbit_messaging"
   spec.version = Rabbit::VERSION
@@ -22,13 +22,13 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "bunny", "~> 2.0"
   spec.add_runtime_dependency "exception_notification"
   spec.add_runtime_dependency "lamian"
-  spec.add_runtime_dependency "rails"
+  spec.add_runtime_dependency "rails", ">= 5.2"
   spec.add_runtime_dependency "sneakers", "~> 2.0"
   spec.add_runtime_dependency "tainbox"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "bundler-audit"
-  spec.add_development_dependency "coveralls"
+  spec.add_development_dependency "coveralls", ">=0.8"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"
