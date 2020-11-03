@@ -12,8 +12,8 @@ All notable changes to this project will be documented in this file.
 
 ### Changed
 - Rabbit::Receiving::Worker refactoring (message processing moved to a separate class)
-- ruby version upped to 2.4
-- rubocop ruby target version set to 2.4
+- ruby version upped to 2.5
+- rubocop ruby target version set to 2.5
 - some fixes of updated rubocop and ruby warnings
 - heavy refactoring of old specs for receiving
 

@@ -7,7 +7,8 @@ class Rabbit::EventHandler
   include Tainbox
 
   attribute :project_id
-  attr_accessor :data, :message_info
+  attribute :data
+  attribute :message_info
 
   class_attribute :queue
   class_attribute :ignore_queue_conversion, default: false
