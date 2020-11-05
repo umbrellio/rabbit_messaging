@@ -71,6 +71,22 @@ require "rabbit_messaging"
       config.exception_notifier = proc { |e| MyCoolNotifier.notify!(e) }
     ```
 
+  * `before_receiving_hooks, after_receiving_hooks` (`Array of Procs`)
+
+    Before and after hooks with message processing in the middle. Where `before_receiving_hooks` and `after_receiving_hooks` are empty arrays by default.
+    
+    It's advised to NOT place procs with long execution time inside.
+
+    Setup:
+
+    ```ruby
+      config.before_receiving_hooks.append(proc { |message, arguments| do_stuff_1 })
+      config.before_receiving_hooks.append(proc { |message, arguments| do_stuff_2 })
+
+      config.after_receiving_hooks.append(proc { |message, arguments| do_stuff_3 })
+      config.after_receiving_hooks.append(proc { |message, arguments| do_stuff_4 })
+
+    ```
 ---
 
 ### Client
@@ -83,6 +99,7 @@ Rabbit.publish(
   exchange_name: 'fanout', # default is fine too
   confirm_select: true, # setting this to false grants you great speed up and absolutelly no guarantees
   headers: { "foo" => "bar" }, # custom arguments for routing, default is {}
+  message_id: "asdadsadsad", # A unique identifier such as a UUID that your application can use to identify the message.
 )
 ```
 

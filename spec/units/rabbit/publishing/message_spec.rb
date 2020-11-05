@@ -28,6 +28,7 @@ describe Rabbit::Publishing::Message do
           data: { foo: :bar },
           exchange_name: :fanout,
           headers: { "foo" => "bar" },
+          message_id: "super-uuid",
         }
       end
 
@@ -41,6 +42,7 @@ describe Rabbit::Publishing::Message do
             content_type: "application/json",
             app_id: "test_group_id.test_project_id",
             headers: { "foo" => "bar" },
+            message_id: "super-uuid",
           }
         ]
       end
@@ -64,6 +66,7 @@ describe Rabbit::Publishing::Message do
             content_type: "application/json",
             app_id: "test_group_id.test_project_id",
             headers: {},
+            message_id: nil,
           }
         ]
       end

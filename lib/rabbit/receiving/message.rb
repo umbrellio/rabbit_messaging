@@ -10,16 +10,23 @@ module Rabbit::Receiving
 
     attribute :group_id
     attribute :project_id
+    attribute :message_id
     attribute :event
     attribute :data
+    attribute :arguments
     attribute :original_message
 
-    attr_accessor :original_message
+    def self.build(message, arguments)
+      group_id, project_id = arguments.fetch(:app_id).split(".")
 
-    def self.build(message, type:, app_id:, **)
-      group_id, project_id = app_id.split(".")
-
-      new(group_id: group_id, project_id: project_id, event: type, data: message)
+      new(
+        group_id: group_id,
+        project_id: project_id,
+        event: arguments.fetch(:type),
+        data: message,
+        message_id: arguments.fetch(:message_id, nil),
+        arguments: arguments,
+      )
     end
 
     def data=(value)
