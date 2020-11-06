@@ -26,6 +26,8 @@ RSpec.describe Rabbit do
     before do
       allow(Bunny).to receive_message_chain(:new, :start).and_return(bunny)
       allow(bunny).to receive(:create_channel).and_return(channel)
+      allow(bunny).to receive(:channel_max).and_return(10)
+      allow(channel).to receive(:open?).and_return(true)
 
       allow(Rabbit.config).to receive(:publish_logger) { publish_logger }
 
@@ -80,7 +82,7 @@ RSpec.describe Rabbit do
 
     after do
       Thread.current[:bunny_channels] = nil
-      Rabbit::Publishing.instance_variable_set(:@client, nil)
+      Rabbit::Publishing.instance_variable_set(:@pool, nil)
       Rabbit::Publishing.instance_variable_set(:@logger, nil)
     end
   end

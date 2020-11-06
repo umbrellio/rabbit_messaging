@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.8.1] - 2020-11-05
+### Added
+- channels pool for manage channels on Publisher connection
+### Changed
+- Publisher use channels pool for access to channel
+
 ## [0.8.0] - 2020-10-28
 ### Added
 - class Rabbit::Recieving::Receive for message processing
