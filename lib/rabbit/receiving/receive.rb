@@ -4,10 +4,9 @@ require "tainbox"
 
 require "rabbit"
 require "rabbit/receiving/queue"
+require "rabbit/receiving/job"
 
 class Rabbit::Receiving::Receive
-  autoload :Job, "rabbit/receiving/job"
-
   include Tainbox
 
   attribute :message
