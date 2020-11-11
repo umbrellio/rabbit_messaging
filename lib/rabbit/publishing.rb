@@ -11,7 +11,7 @@ module Rabbit
     MUTEX = Mutex.new
 
     def publish(msg)
-      return if Rabbit.config.environment.in? %i[test development]
+      return if Rabbit.config.environment.in? %i[test]
 
       pool.with_channel msg.confirm_select? do |ch|
         ch.basic_publish *msg.basic_publish_args
