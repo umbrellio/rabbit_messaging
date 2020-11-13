@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.8.2] - 2020-11-13
+### Changed
+- fix for receiving (delivery_info and args to hashes)
+- fix for requiring receiving job
+- configurable skip publish (previous iteration just skipped in development)
+
 ## [0.8.1] - 2020-11-05
 ### Added
 - channels pool for manage channels on Publisher connection

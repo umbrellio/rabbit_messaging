@@ -58,6 +58,13 @@ require "rabbit_messaging"
       * `:development` environment auto-creates queues and uses default exchange
       * `:production` environment enables handlers caching and gets maximum strictness
 
+    By default gem skips publishing in test and development environments.
+    If you want to change that then manually set `Rabbit.skip_publishing_in` with an array of environments.
+
+    ```ruby
+     Rabbit.skip_publishing_in = %i[test]
+    ```
+
   * `receiving_job_class_callable` (`Proc`)
 
     Custom ActiveJob subclass to work with received messages.
