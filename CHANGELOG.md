@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.9.0] - 2020-11-16
-### Changed
+### Added
 - configurable publish skipping (previous iteration just skipped in development)
 
 ### Fixed
