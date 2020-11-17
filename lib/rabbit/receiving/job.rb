@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "lamian"
+require "active_job"
 
 require "rabbit"
 require "rabbit/receiving"

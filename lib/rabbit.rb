@@ -25,6 +25,7 @@ module Rabbit
     attribute :exception_notifier, default: -> { default_exception_notifier }
     attribute :before_receiving_hooks, default: []
     attribute :after_receiving_hooks, default: []
+    attribute :skip_publishing_in, default: %i[test development]
 
     attribute :receive_logger, default: lambda {
       Logger.new(Rails.root.join("log", "incoming_rabbit_messages.log"))
@@ -45,6 +46,10 @@ module Rabbit
       unless environment.in? %i[test development production]
         raise "environment should be one of (test, development, production)"
       end
+    end
+
+    def skip_publish?
+      skip_publishing_in.include?(environment)
     end
 
     def app_name

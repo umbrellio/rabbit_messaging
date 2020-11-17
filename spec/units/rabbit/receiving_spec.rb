@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_relative "dummy/some_group"
-require_relative "../../../lib/rabbit/receiving/job"
 
 describe "Receiving messages" do
   let(:worker)        { Rabbit::Receiving::Worker.new }
