@@ -52,7 +52,7 @@ RSpec.describe Rabbit do
     it "publishes" do # rubocop:disable RSpec/ExampleLength
       if expect_to_use_job
         log_line = 'test_group_id.test_project_id.some_exchange / some_queue / ' \
-                   'some_event / confirm: {"hello"=>"world"}'
+                   '{"foo"=>"bar"} / some_event / confirm: {"hello"=>"world"}'
 
         set_params = { queue: "default_prepared" }
         expect(Rabbit::Publishing::Job).to receive(:set).with(set_params).and_call_original
@@ -71,8 +71,8 @@ RSpec.describe Rabbit do
                                                                 .and_call_original
 
       else
-        log_line = "test_group_id.test_project_id.some_exchange / some_queue / " \
-                   "some_event / confirm: {:hello=>:world}"
+        log_line = 'test_group_id.test_project_id.some_exchange / some_queue / ' \
+                   '{"foo"=>"bar"} / some_event / confirm: {:hello=>:world}'
         expect(Rabbit::Publishing::Job).not_to receive(:perform_later)
       end
 
