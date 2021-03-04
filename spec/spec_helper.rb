@@ -1,16 +1,25 @@
 # frozen_string_literal: true
 
+require "bundler/setup"
 require "simplecov"
-require "coveralls"
+require "simplecov-lcov"
+
+SimpleCov::Formatter::LcovFormatter.config do |c|
+  c.report_with_single_file = true
+  c.lcov_file_name = "lcov.info"
+  c.output_directory = "coverage"
+end
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new([
   SimpleCov::Formatter::HTMLFormatter,
-  Coveralls::SimpleCov::Formatter,
+  SimpleCov::Formatter::LcovFormatter,
 ])
 
-SimpleCov.start { add_filter "spec" }
+SimpleCov.enable_coverage(:branch)
+SimpleCov.enable_coverage(:line)
+SimpleCov.add_filter "spec"
+SimpleCov.start
 
-require "bundler/setup"
 require "rabbit_messaging"
 
 require "rspec/its"
