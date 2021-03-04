@@ -50,8 +50,8 @@ module Rabbit
       @logger ||= Rabbit.config.publish_logger
 
       headers = [
-        message.real_exchange_name, message.routing_key, message.event,
-        message.confirm_select? ? "confirm" : "no-confirm"
+        message.real_exchange_name, message.routing_key, message.headers,
+        message.event, message.confirm_select? ? "confirm" : "no-confirm"
       ]
 
       @logger.debug "#{headers.join ' / '}: #{message.data}"
