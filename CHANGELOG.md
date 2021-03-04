@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.9.1] - 2021-03-04
+### Added
+- logging message headers
+
 ## [0.9.0] - 2020-11-18
 ### Added
 - configurable publish skipping (previous iteration just skipped in development)
