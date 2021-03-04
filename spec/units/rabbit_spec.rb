@@ -32,7 +32,7 @@ RSpec.describe Rabbit do
       allow(Rabbit.config).to receive(:publish_logger) { publish_logger }
 
       expect(channel).to receive(:confirm_select).once
-      expect(channel).to receive(:wait_for_confirms).and_return(true)
+      allow(channel).to receive(:wait_for_confirms).and_return(true)
       expect(channel).to receive(:basic_publish).with(
         { hello: :world }.to_json,
         "test_group_id.test_project_id.some_exchange",
