@@ -7,8 +7,8 @@ on:
     branches: [master]
 
 jobs:
-  full-check:
     runs-on: ubuntu-latest
+  full-check:
 
     steps:
       - uses: actions/checkout@v2
@@ -16,6 +16,8 @@ jobs:
         with:
           ruby-version: 3.0
           bundler-cache: true
+      - name: Create log dir
+        run: mkdir -p log
       - name: Run Linter
         run: bundle exec rubocop
       - name: Run audit
@@ -46,5 +48,7 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
+      - name: Create log dir
+        run: mkdir -p log
       - name: Run specs
         run: bundle exec rspec
