@@ -56,8 +56,6 @@ module Rabbit::Publishing
       [Rabbit.config.group_id, Rabbit.config.project_id, *exchange_name].join(".")
     end
 
-    private
-
     def headers
       super || {}
     end
