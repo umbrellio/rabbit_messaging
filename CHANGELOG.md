@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.9.1] - 2021-03-04
+## [0.10.0] - 2021-03-05
 ### Added
 - logging message headers
 
