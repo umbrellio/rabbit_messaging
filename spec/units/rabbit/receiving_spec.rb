@@ -16,6 +16,8 @@ describe "Receiving messages" do
   let(:after_hook)    { double("after hook") }
   let(:message_info)  { arguments.merge(delivery_info.slice(:exchange, :routing_key)) }
 
+  let(:expected_instance_data) { Hash[hello: "world", foo: "bar"] }
+
   def expect_job_queue_to_be_set
     expect(job_class).to receive(:set).with(queue: queue)
   end
@@ -23,14 +25,14 @@ describe "Receiving messages" do
   def expect_some_handler_to_be_called
     expect_any_instance_of(handler).to receive(:call) do |instance|
       expect(instance.hello).to eq("world")
-      expect(instance.data).to eq(hello: "world", foo: "bar")
+      expect(instance.data).to eq(expected_instance_data)
       expect(instance.message_info).to include(message_info)
     end
   end
 
   def expect_empty_handler_to_be_called
     expect_any_instance_of(handler).to receive(:call) do |instance|
-      expect(instance.data).to eq(hello: "world", foo: "bar")
+      expect(instance.data).to eq(expected_instance_data)
       expect(instance.message_info).to include(message_info)
     end
   end
@@ -184,7 +186,7 @@ describe "Receiving messages" do
 
       before do
         allow(Rabbit.config).to receive(:receiving_job_class_callable)
-          .and_return(-> { custom_job_class })
+          .and_return(-> (_ctx) { custom_job_class })
 
         allow(custom_job_class).to receive(:set).with(queue: queue).and_return(custom_job)
         allow(custom_job).to receive(:perform_later)
@@ -194,6 +196,18 @@ describe "Receiving messages" do
         expect(job_class).not_to receive(:set).with(queue: queue)
         expect(custom_job_class).to receive(:set).with(queue: queue)
         expect(custom_job).to receive(:perform_later)
+      end
+
+      it "reciving_job_class_callable receives the full message context" do
+        expect(Rabbit.config.receiving_job_class_callable).to receive(:call).with({
+          message: '{"hello":"world","foo":"bar"}',
+          delivery_info: { exchange: "some exchange", routing_key: "some_key" },
+          arguments: {
+            type: "some_successful_event",
+            app_id: "some_group.some_app",
+            message_id: "uuid",
+          },
+        })
       end
     end
   end
