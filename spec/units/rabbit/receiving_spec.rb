@@ -16,8 +16,6 @@ describe "Receiving messages" do
   let(:after_hook)    { double("after hook") }
   let(:message_info)  { arguments.merge(delivery_info.slice(:exchange, :routing_key)) }
 
-  let(:expected_instance_data) { Hash[hello: "world", foo: "bar"] }
-
   def expect_job_queue_to_be_set
     expect(job_class).to receive(:set).with(queue: queue)
   end
@@ -25,14 +23,14 @@ describe "Receiving messages" do
   def expect_some_handler_to_be_called
     expect_any_instance_of(handler).to receive(:call) do |instance|
       expect(instance.hello).to eq("world")
-      expect(instance.data).to eq(expected_instance_data)
+      expect(instance.data).to eq(hello: "world", foo: "bar")
       expect(instance.message_info).to include(message_info)
     end
   end
 
   def expect_empty_handler_to_be_called
     expect_any_instance_of(handler).to receive(:call) do |instance|
-      expect(instance.data).to eq(expected_instance_data)
+      expect(instance.data).to eq(hello: "world", foo: "bar")
       expect(instance.message_info).to include(message_info)
     end
   end
@@ -198,7 +196,7 @@ describe "Receiving messages" do
         expect(custom_job).to receive(:perform_later)
       end
 
-      it "reciving_job_class_callable receives the full message context" do
+      it "receiving_job_class_callable receives the full message context" do
         expect(Rabbit.config.receiving_job_class_callable).to receive(:call).with({
           message: '{"hello":"world","foo":"bar"}',
           delivery_info: { exchange: "some exchange", routing_key: "some_key" },
