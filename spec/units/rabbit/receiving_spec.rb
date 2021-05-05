@@ -197,15 +197,11 @@ describe "Receiving messages" do
       end
 
       it "receiving_job_class_callable receives the full message context" do
-        expect(Rabbit.config.receiving_job_class_callable).to receive(:call).with({
-          message: '{"hello":"world","foo":"bar"}',
-          delivery_info: { exchange: "some exchange", routing_key: "some_key" },
-          arguments: {
-            type: "some_successful_event",
-            app_id: "some_group.some_app",
-            message_id: "uuid",
-          },
-        })
+        expect(Rabbit.config.receiving_job_class_callable).to receive(:call).with(
+          message: message,
+          delivery_info: delivery_info,
+          arguments: arguments,
+        )
       end
     end
   end
