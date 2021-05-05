@@ -67,11 +67,11 @@ require "rabbit_messaging"
 
   * `receiving_job_class_callable` (`Proc`)
 
-    Custom ActiveJob subclass to work with received messages. Receives the following attributes in a Hash form:
+    Custom ActiveJob subclass to work with received messages. Receives the following attributes as `kwarg`-arguments:
 
-    * `arguments` - information about message type (`type`), application id (`app_id`), message id (`message_id`);
-    * `delivery_info` - information about `exchange`, `routing_key`, etc;
-    * `message` - received RabbitMQ message (often in a `string` format);
+    * `:arguments` - information about message type (`type`), application id (`app_id`), message id (`message_id`);
+    * `:delivery_info` - information about `exchange`, `routing_key`, etc;
+    * `:message` - received RabbitMQ message (often in a `string` format);
 
     ```ruby
     {
