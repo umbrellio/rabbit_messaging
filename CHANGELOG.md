@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.11.0] - Unreleased
+## [0.11.0] - 2021-05-05
 ### Added
 - `Rabbit.config.receiving_job_class_callable` now receives the full message context (with `message`, `delivery_info` and `arguments` (see the `Rabbit::Receiving::Receive`));
 
