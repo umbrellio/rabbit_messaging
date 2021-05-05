@@ -184,7 +184,7 @@ describe "Receiving messages" do
 
       before do
         allow(Rabbit.config).to receive(:receiving_job_class_callable)
-          .and_return(-> { custom_job_class })
+          .and_return(-> (_ctx) { custom_job_class })
 
         allow(custom_job_class).to receive(:set).with(queue: queue).and_return(custom_job)
         allow(custom_job).to receive(:perform_later)
@@ -194,6 +194,14 @@ describe "Receiving messages" do
         expect(job_class).not_to receive(:set).with(queue: queue)
         expect(custom_job_class).to receive(:set).with(queue: queue)
         expect(custom_job).to receive(:perform_later)
+      end
+
+      it "receiving_job_class_callable receives the full message context" do
+        expect(Rabbit.config.receiving_job_class_callable).to receive(:call).with(
+          message: message,
+          delivery_info: delivery_info,
+          arguments: arguments,
+        )
       end
     end
   end

@@ -57,6 +57,10 @@ class Rabbit::Receiving::Receive
   end
 
   def job_class
-    Rabbit.config.receiving_job_class_callable&.call || Rabbit::Receiving::Job
+    Rabbit.config.receiving_job_class_callable&.call(
+      message: message,
+      delivery_info: delivery_info,
+      arguments: arguments,
+    ) || Rabbit::Receiving::Job
   end
 end
