@@ -11,7 +11,13 @@ module Rabbit
   module Daemon
     extend self
 
-    def run
+    def run(logger: Sneakers.logger)
+      unless logger
+        logger = Logger.new(Rails.root.join("log", "sneakers.log"))
+        logger.level = Logger::DEBUG
+        Lamian.extend_logger(logger)
+      end
+
       Sneakers.configure(
         connection: connection,
         env: Rails.env,
@@ -21,14 +27,9 @@ module Rabbit
         supervisor: true,
         daemonize: false,
         exit_on_detach: true,
+        log: logger,
         **config,
       )
-
-      unless Sneakers.logger
-        Sneakers.logger = Logger.new(Rails.root.join("log", "sneakers.log"))
-        Sneakers.logger.level = Logger::DEBUG
-        Lamian.extend_logger(Sneakers.logger)
-      end
 
       Sneakers.server = true
 
