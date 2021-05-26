@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.0
+          ruby-version: "3.0"
           bundler-cache: true
       - name: Create log dir
         run: mkdir -p log
@@ -37,7 +37,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [2.5, 2.6, 2.7]
+        ruby: ["2.5", "2.6", "2.7"]
         experimental: [false]
         include:
           - ruby: head
