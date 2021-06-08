@@ -1,4 +1,4 @@
-# Rabbit (Rabbit Messaging) &middot;  [![Gem Version](https://badge.fury.io/rb/rabbit_messaging.svg)](https://badge.fury.io/rb/rabbit_messaging) [![Build Status](https://travis-ci.org/umbrellio/rabbit_messaging.svg?branch=master)](https://travis-ci.org/umbrellio/rabbit_messaging) [![Coverage Status](https://coveralls.io/repos/github/umbrellio/rabbit_messaging/badge.svg?branch=master)](https://coveralls.io/github/umbrellio/rabbit_messaging?branch=master)
+# Rabbit (Rabbit Messaging) &middot;  [![Gem Version](https://badge.fury.io/rb/rabbit_messaging.svg)](https://badge.fury.io/rb/rabbit_messaging) [![Coverage Status](https://coveralls.io/repos/github/umbrellio/rabbit_messaging/badge.svg?branch=master)](https://coveralls.io/github/umbrellio/rabbit_messaging?branch=master)
 
 Provides client and server support for RabbitMQ
 
@@ -97,7 +97,7 @@ require "rabbit_messaging"
   * `before_receiving_hooks, after_receiving_hooks` (`Array of Procs`)
 
     Before and after hooks with message processing in the middle. Where `before_receiving_hooks` and `after_receiving_hooks` are empty arrays by default.
-    
+
     It's advised to NOT place procs with long execution time inside.
 
     Setup:
