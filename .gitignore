@@ -7,5 +7,7 @@
 /spec/reports/
 /tmp/
 .ruby-version
-/log/
 *.gem
+
+/log/*
+!/log/.keep
