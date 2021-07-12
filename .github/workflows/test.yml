@@ -15,8 +15,6 @@ jobs:
         with:
           ruby-version: "3.0"
           bundler-cache: true
-      - name: Create log dir
-        run: mkdir -p log
       - name: Run Linter
         run: bundle exec rubocop
       - name: Run audit
@@ -37,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: ["2.5", "2.6", "2.7"]
+        ruby: ["2.5", "2.6", "2.7", "3.0"]
         experimental: [false]
         include:
           - ruby: head
