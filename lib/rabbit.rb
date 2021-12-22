@@ -61,7 +61,7 @@ module Rabbit
     private
 
     def default_exception_notifier
-      -> (e) { ExceptionNotifier.notify_exception(e) }
+      -> (e) { Sentry.capture_exception(e) }
     end
   end
 
