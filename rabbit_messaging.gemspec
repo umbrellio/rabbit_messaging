@@ -20,7 +20,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_runtime_dependency "bunny", "~> 2.0"
-  spec.add_runtime_dependency "exception_notification"
   spec.add_runtime_dependency "lamian"
   spec.add_runtime_dependency "rails", ">= 5.2"
   spec.add_runtime_dependency "sneakers", "~> 2.0"

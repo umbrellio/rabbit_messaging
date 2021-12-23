@@ -87,7 +87,7 @@ require "rabbit_messaging"
 
   * `exception_notifier` (`Proc`)
 
-    By default, exceptions are reported using `ExceptionNotifier` (see exception_notification gem).
+    By default, exceptions are reported using `Sentry` (see [sentry gem](https://github.com/getsentry/sentry-ruby)).
     You can provide your own notifier like this:
 
     ```ruby

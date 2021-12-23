@@ -24,7 +24,7 @@ require "rabbit_messaging"
 
 require "rspec/its"
 require "pry"
-require "exception_notification"
+require "sentry-ruby"
 require "ipaddr"
 
 require_relative "../environments/development"
