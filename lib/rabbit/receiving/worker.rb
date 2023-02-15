@@ -27,7 +27,7 @@ class Rabbit::Receiving::Worker
   def handle_error!(error)
     raise if Rabbit.config.environment == :test
     Rabbit.config.exception_notifier.call(error)
-    # wait to prevent queue overflow 
+    # wait to prevent queue overflow
     sleep 1
     requeue!
   end
