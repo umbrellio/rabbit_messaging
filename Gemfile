@@ -3,5 +3,14 @@
 source "https://rubygems.org"
 gemspec
 
-gem "rails", "~> 6.0" # Rails 7 requires Ruby >= 2.7
+gem "bundler"
+gem "bundler-audit"
+gem "pry"
+gem "rails"
+gem "rake"
+gem "rspec"
+gem "rspec-its"
+gem "rubocop-config-umbrellio"
 gem "sentry-ruby-core"
+gem "simplecov"
+gem "simplecov-lcov"

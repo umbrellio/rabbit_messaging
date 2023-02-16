@@ -27,8 +27,8 @@ module Rabbit::Receiving::HandlerResolver
         handler
       else
         raise UnsupportedEvent, "#{event.inspect} event from #{group_id.inspect} group is not " \
-                "supported, it requires a #{name.inspect} class inheriting from " \
-                "\"Rabbit::EventHandler\" to be defined"
+                                "supported, it requires a #{name.inspect} class inheriting from " \
+                                "\"Rabbit::EventHandler\" to be defined"
       end
     end
   end
