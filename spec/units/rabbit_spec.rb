@@ -76,7 +76,7 @@ RSpec.describe Rabbit do
         expect(Rabbit::Publishing::Job).not_to receive(:perform_later)
       end
 
-      expect(publish_logger).to receive(:test).with(log_line).once
+      expect(publish_logger).to receive(:debug).with(log_line).once
       described_class.publish(message_options)
     end
 
