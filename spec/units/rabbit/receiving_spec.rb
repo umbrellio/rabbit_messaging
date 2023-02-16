@@ -34,6 +34,7 @@ describe "Receiving messages" do
     end
   end
 
+  # fix
   def expect_notification
     expect(Sentry).to receive(:capture_exception)
   end

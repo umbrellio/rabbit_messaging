@@ -22,7 +22,7 @@ module Rabbit
     attribute :environment, Symbol, default: :production
     attribute :queue_name_conversion
     attribute :receiving_job_class_callable
-    attribute :exception_notifier, default: -> { default_exception_notifier }
+    attribute :exception_notifier
     attribute :before_receiving_hooks, default: []
     attribute :after_receiving_hooks, default: []
     attribute :skip_publishing_in, default: %i[test development]
@@ -42,6 +42,7 @@ module Rabbit
     def validate!
       raise InvalidConfig, "mising project_id" unless project_id
       raise InvalidConfig, "mising group_id" unless group_id
+      raise InvalidConfig, "mising exception_notifier" unless exception_notifier
 
       unless environment.in? %i[test development production]
         raise "environment should be one of (test, development, production)"
@@ -57,12 +58,6 @@ module Rabbit
     end
 
     alias_method :read_queue, :app_name
-
-    private
-
-    def default_exception_notifier
-      -> (e) { Sentry.capture_exception(e) }
-    end
   end
 
   extend self
