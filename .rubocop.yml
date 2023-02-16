@@ -22,4 +22,4 @@ Style/HashConversion:
     - spec/**/*
 
 RSpec/VerifiedDoubleReference:
-  Enabled: false
+  EnforcedStyle: string
