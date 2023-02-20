@@ -15,3 +15,4 @@ ActiveJob::Base.logger = Logger.new("/dev/null")
 
 Rabbit.config.project_id = "test_project_id"
 Rabbit.config.group_id = "test_group_id"
+Rabbit.config.exception_notifier = proc { |e| p e }

@@ -36,7 +36,7 @@ describe "Receiving messages" do
 
   # fix
   def expect_notification
-    expect(Sentry).to receive(:capture_exception)
+    expect(Rabbit.config.exception_notifier).to receive(:call)
   end
 
   def expect_hooks_to_be_called
@@ -51,7 +51,6 @@ describe "Receiving messages" do
     Rabbit.config.after_receiving_hooks  = [after_hook]
 
     allow(job_class).to receive(:set).with(queue: queue).and_call_original
-    allow(Sentry).to receive(:capture_exception).and_call_original
 
     allow(before_hook).to receive(:call).with(message, message_info)
     allow(after_hook).to receive(:call).with(message, message_info)
@@ -77,7 +76,7 @@ describe "Receiving messages" do
         let(:queue) { "world_some_successful_event_prepared" }
 
         it "performs job successfully" do
-          expect(Sentry).not_to receive(:capture_exception)
+          expect(Rabbit.config.exception_notifier).not_to receive(:call)
 
           expect_job_queue_to_be_set
           expect_some_handler_to_be_called
