@@ -69,8 +69,8 @@ module Rabbit
   end
 
   def configure
+    yield(config)
     config.validate!
-    config
   end
 
   def publish(message_options)
