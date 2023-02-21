@@ -68,7 +68,10 @@ module Rabbit
     @config
   end
 
-  alias_method :configure, :config
+  def configure
+    config.validate!
+    config
+  end
 
   def publish(message_options)
     message = Publishing::Message.new(message_options)
