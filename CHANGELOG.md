@@ -1,6 +1,26 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.14.0] - 2023-02-21
+### Added
+- Exception notifier is required
+
+## [0.13.0] - 2021-12-23
+### Added
+- `Sleep 1` for handling receiving error to prevent queue overflow
+- `["2.7", "3.0", "3.1", "3.2"]` are used for specs
+
+## [0.12.1] - 2021-12-23
+### Added
+- `ExceptionNotifier` replaced with `Sentry`
+
+## [0.12.0] - 2021-06-08
+### Added
+- `Gemfile.lock` added
+
+### Fixed
+- `unless Sneakers.logger` was never executed  
+
 ## [0.11.0] - 2021-05-05
 ### Added
 - `Rabbit.config.receiving_job_class_callable` now receives the full message context (with `message`, `delivery_info` and `arguments` (see the `Rabbit::Receiving::Receive`));
