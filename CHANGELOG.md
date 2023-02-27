@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.14.0] - 2023-02-21
+## [0.14.0] - 2023-02-27
 ### Added
 - Exception notifier is required
 
