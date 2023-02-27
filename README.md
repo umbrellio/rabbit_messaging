@@ -46,6 +46,14 @@ require "rabbit_messaging"
     (I.e. we have project 'support', in production it's project_id is :support,
     but in staging it uses :support1 and :support2 ids for corresponding stages)
 
+
+  * `exception_notifier` (`Proc`)
+    You must provide your own notifier like this to notify about exceptions:
+  
+    ```ruby
+      config.exception_notifier = proc { |e| MyCoolNotifier.notify!(e) }
+    ```
+
   * `hooks` (`Hash`)
 
     :before_fork and :after_fork hooks, used same way as in unicorn / puma / que / etc
@@ -83,15 +91,6 @@ require "rabbit_messaging"
         message_id: "uuid",
       }
     }
-    ```
-
-  * `exception_notifier` (`Proc`)
-
-    By default, exceptions are reported using `Sentry` (see [sentry gem](https://github.com/getsentry/sentry-ruby)).
-    You can provide your own notifier like this:
-
-    ```ruby
-      config.exception_notifier = proc { |e| MyCoolNotifier.notify!(e) }
     ```
 
   * `before_receiving_hooks, after_receiving_hooks` (`Array of Procs`)
