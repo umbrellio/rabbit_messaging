@@ -6,6 +6,7 @@ PATH
       lamian
       rails (>= 5.2)
       sneakers (~> 2.0)
+      sneakers_handlers
       tainbox
 
 GEM
@@ -232,6 +233,8 @@ GEM
       rake
       serverengine (~> 2.0.5)
       thor
+    sneakers_handlers (0.0.6)
+      sneakers
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)
