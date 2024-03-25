@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "active_support/deprecator"
+require "active_support/deprecation"
 require "tainbox"
 
 require "rabbit/version"
