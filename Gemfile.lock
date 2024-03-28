@@ -1,11 +1,12 @@
 PATH
   remote: .
   specs:
-    rabbit_messaging (0.14.0)
+    rabbit_messaging (0.15.0)
       bunny (~> 2.0)
       lamian
       rails (>= 5.2)
       sneakers (~> 2.0)
+      sneakers_handlers
       tainbox
 
 GEM
@@ -268,6 +269,8 @@ GEM
       rake
       serverengine (~> 2.0.5)
       thor
+    sneakers_handlers (0.0.6)
+      sneakers
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)

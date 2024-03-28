@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2024-03-28
+### Added
+- Add `ExponentialBackoffHandler` for handling errors in messages
+- Optional `queue_suffix` config for read queues
+
 ## [0.14.0] - 2023-02-27
 ### Added
 - Exception notifier is required
@@ -19,7 +24,7 @@ All notable changes to this project will be documented in this file.
 - `Gemfile.lock` added
 
 ### Fixed
-- `unless Sneakers.logger` was never executed  
+- `unless Sneakers.logger` was never executed
 
 ## [0.11.0] - 2021-05-05
 ### Added
