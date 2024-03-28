@@ -26,11 +26,11 @@ RSpec.describe Rabbit::Daemon do
       bunny_options: {
         bar: 2,
         log_level: "warn",
-      }
+      },
     }
   end
 
-  specify do
+  it "setups sneakers properly and runs daemon" do
     expect(Sneakers).to receive(:configure).with(
       connection: bunny_double,
       env: "test",
@@ -58,6 +58,7 @@ RSpec.describe Rabbit::Daemon do
 
     expect(sneaker_logger_double).to receive(:level=).with("warn")
     expect(runner_double).to receive(:run)
+
     Rabbit::Daemon.run(logger: logger_double)
   end
 end

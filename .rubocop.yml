@@ -23,3 +23,6 @@ Style/HashConversion:
 
 RSpec/VerifiedDoubleReference:
   EnforcedStyle: string
+
+RSpec/ExampleLength:
+  Max: 50

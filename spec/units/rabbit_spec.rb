@@ -49,7 +49,7 @@ RSpec.describe Rabbit do
       )
     end
 
-    it "publishes" do # rubocop:disable RSpec/ExampleLength
+    it "publishes" do
       if expect_to_use_job
         log_line = 'test_group_id.test_project_id.some_exchange / some_queue / ' \
                    '{"foo"=>"bar"} / some_event / confirm: {"hello"=>"world"}'
