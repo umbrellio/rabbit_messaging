@@ -18,6 +18,7 @@ module Rabbit
 
     attribute :group_id, Symbol
     attribute :project_id, Symbol
+    attribute :queue_suffix, String
     attribute :hooks, default: {}
     attribute :environment, Symbol, default: :production
     attribute :queue_name_conversion
@@ -26,6 +27,7 @@ module Rabbit
     attribute :before_receiving_hooks, default: []
     attribute :after_receiving_hooks, default: []
     attribute :skip_publishing_in, default: %i[test development]
+    attribute :backoff_handler_max_retries, Integer, default: 6
 
     attribute :receive_logger, default: lambda {
       Logger.new(Rails.root.join("log", "incoming_rabbit_messages.log"))
@@ -57,7 +59,9 @@ module Rabbit
       [group_id, project_id].join(".")
     end
 
-    alias_method :read_queue, :app_name
+    def read_queue
+      [app_name, queue_suffix].compact.join(".")
+    end
   end
 
   extend self
