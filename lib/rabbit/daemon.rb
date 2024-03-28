@@ -18,11 +18,23 @@ module Rabbit
         Lamian.extend_logger(logger)
       end
 
+      self.logger = logger
+
       Sneakers.configure(**sneakers_config(logger: logger))
       Sneakers.server = true
 
       Rabbit.config.validate!
-      Receiving::Worker.from_queue(Rabbit.config.read_queue)
+
+      Receiving::Worker.from_queue(
+        Rabbit.config.read_queue,
+        handler: SneakersHandlers::ExponentialBackoffHandler,
+        max_retries: Rabbit.config.backoff_handler_max_retries,
+        arguments: {
+          "x-dead-letter-exchange" => "#{Rabbit.config.read_queue}.dlx",
+          "x-dead-letter-routing-key" => "#{Rabbit.config.read_queue}.dlx",
+        },
+      )
+
       Sneakers::Runner.new([Receiving::Worker]).run
     end
 
@@ -32,10 +44,14 @@ module Rabbit
 
     def connection
       bunny_config = config.delete(:bunny_options).to_h.symbolize_keys
-      Bunny.new(bunny_config)
+      bunny_logger = logger.dup
+      bunny_logger.level = bunny_config[:log_level] || :info
+      Bunny.new(**bunny_config, logger: bunny_logger)
     end
 
     private
+
+    attr_accessor :logger
 
     def sneakers_config(logger:)
       {

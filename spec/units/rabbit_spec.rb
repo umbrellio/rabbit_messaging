@@ -66,9 +66,8 @@ RSpec.describe Rabbit do
           headers: { "foo" => "bar" },
           message_id: "uuid",
         }
-        expect_any_instance_of(ActiveJob::ConfiguredJob).to receive(:perform_later)
-                                                                .with(perform_params)
-                                                                .and_call_original
+        expect_any_instance_of(ActiveJob::ConfiguredJob)
+          .to receive(:perform_later).with(perform_params).and_call_original
 
       else
         log_line = 'test_group_id.test_project_id.some_exchange / some_queue / ' \
@@ -99,5 +98,17 @@ RSpec.describe Rabbit do
     let(:expect_to_use_job) { true }
 
     include_examples "publishes"
+  end
+
+  describe "config" do
+    describe "#read_queue" do
+      specify { expect(Rabbit.config.read_queue).to eq("test_group_id.test_project_id") }
+
+      context "with suffix provided" do
+        before { Rabbit.config.queue_suffix = "smth" }
+
+        specify { expect(Rabbit.config.read_queue).to eq("test_group_id.test_project_id.smth") }
+      end
+    end
   end
 end
