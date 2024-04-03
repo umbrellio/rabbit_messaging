@@ -20,6 +20,10 @@ SimpleCov.enable_coverage(:line)
 SimpleCov.add_filter "spec"
 SimpleCov.start
 
+# Required for tainbox :(
+require "active_support/deprecator"
+require "active_support/deprecation"
+
 require "rabbit_messaging"
 
 require "rspec/its"

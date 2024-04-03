@@ -23,5 +23,6 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "lamian"
   spec.add_runtime_dependency "rails", ">= 5.2"
   spec.add_runtime_dependency "sneakers", "~> 2.0"
+  spec.add_runtime_dependency "sneakers_handlers"
   spec.add_runtime_dependency "tainbox"
 end
