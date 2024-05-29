@@ -60,7 +60,7 @@ describe "Receiving messages" do
     handler.ignore_queue_conversion = conversion
   end
 
-  subject { worker.work_with_params(message, delivery_info, arguments) }
+  subject(:run_receive) { worker.work_with_params(message, delivery_info, arguments) }
 
   shared_examples "check job queue and some handler" do
     specify do
@@ -68,16 +68,16 @@ describe "Receiving messages" do
       expect_some_handler_to_be_called
       expect_hooks_to_be_called
 
-      subject
+      run_receive
     end
   end
 
   context "job enqueued successfully" do
     context "message is valid" do
       context "handler resolver represent by config" do
-        before { Rabbit.config.handler_resolver_callable = -> (m, g) { test_handler } }
+        before { Rabbit.config.handler_resolver_callable = -> (_m, _g) { test_handler } }
         after { Rabbit.config.handler_resolver_callable = nil }
-         
+
         let(:test_handler) do
           Class.new(Rabbit::EventHandler) do
             def self.queue
@@ -95,7 +95,7 @@ describe "Receiving messages" do
           expect_any_instance_of(test_handler).to receive(:call)
           expect(handler).not_to receive(:new)
 
-          subject
+          run_receive
         end
       end
 
@@ -108,7 +108,7 @@ describe "Receiving messages" do
           expect_job_queue_to_be_set
           expect_some_handler_to_be_called
 
-          subject
+          run_receive
         end
 
         context "job performs unsuccessfully" do
@@ -122,7 +122,7 @@ describe "Receiving messages" do
               expect(exception.message).to eq("Unsuccessful event error")
             end
 
-            subject
+            run_receive
           end
         end
 
@@ -146,7 +146,7 @@ describe "Receiving messages" do
                 expect_empty_handler_to_be_called
                 expect_hooks_to_be_called
 
-                subject
+                run_receive
               end
             end
           end
@@ -167,7 +167,7 @@ describe "Receiving messages" do
                 expect_empty_handler_to_be_called
                 expect_hooks_to_be_called
 
-                subject
+                run_receive
               end
             end
           end
@@ -198,7 +198,7 @@ describe "Receiving messages" do
             expect(exception.message).to eq(error_msg)
           end
 
-          subject
+          run_receive
         end
       end
     end
@@ -210,7 +210,7 @@ describe "Receiving messages" do
       # can't set job, raises malformed message when tries to determine queue name
       it "notifies about exception" do
         expect_notification.with(Rabbit::Receiving::MalformedMessage)
-        subject
+        run_receive
       end
     end
 
@@ -232,7 +232,7 @@ describe "Receiving messages" do
         expect(custom_job_class).to receive(:set).with(queue: queue)
         expect(custom_job).to receive(:perform_later)
 
-        subject
+        run_receive
       end
 
       it "receiving_job_class_callable receives the full message context" do
@@ -241,8 +241,8 @@ describe "Receiving messages" do
           delivery_info: delivery_info,
           arguments: arguments,
         )
-        
-        subject
+
+        run_receive
       end
     end
   end
@@ -261,7 +261,7 @@ describe "Receiving messages" do
       expect_notification.with(error)
       expect(worker).to receive(:requeue!)
 
-      subject
+      run_receive
     end
   end
 end
