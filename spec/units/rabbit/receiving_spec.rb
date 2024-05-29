@@ -92,7 +92,9 @@ describe "Receiving messages" do
 
         it "perform our handler" do
           expect(test_handler).to receive(:new).and_call_original
-          expect_any_instance_of(test_handler).to receive(:call)
+          expect_any_instance_of(test_handler).to receive(:call) do |inst|
+            expect(inst.message.data).to eq(message)
+          end
           expect(handler).not_to receive(:new)
 
           run_receive
