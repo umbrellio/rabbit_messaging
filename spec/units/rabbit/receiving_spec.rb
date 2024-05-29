@@ -79,7 +79,13 @@ describe "Receiving messages" do
         after { Rabbit.config.handler_resolver_callable = nil }
          
         let(:test_handler) do
-          Class.new(Rabbit::EventHandler) { def call = nil; def self.queue = :test }
+          Class.new(Rabbit::EventHandler) do
+            def self.queue
+              :test
+            end
+
+            def call; end
+          end
         end
         let(:queue) { "test_prepared" }
         let(:event) { "magic_event" }
