@@ -99,6 +99,27 @@ describe "Receiving messages" do
 
           run_receive
         end
+
+        context "but resolved handler is invalid" do
+          let(:event) { "magic_evnet2" }
+          let(:test_handler) do
+            Class.new do
+              def self.queue
+                :test
+              end
+
+              def call; end
+            end
+          end
+
+          it "notifies about exception" do
+            expect_notification do |exception|
+              expect(exception.message).to eq(error_msg)
+            end
+
+            run_receive
+          end
+        end
       end
 
       context "handler is found" do
