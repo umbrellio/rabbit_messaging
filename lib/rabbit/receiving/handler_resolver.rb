@@ -28,7 +28,6 @@ module Rabbit::Receiving::HandlerResolver
                   name.safe_constantize
                 end
 
-
       if handler && handler < Rabbit::EventHandler
         handler
       else
