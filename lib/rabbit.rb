@@ -22,6 +22,7 @@ module Rabbit
     attribute :environment, Symbol, default: :production
     attribute :queue_name_conversion
     attribute :receiving_job_class_callable
+    attribute :handler_resolver_callable
     attribute :exception_notifier
     attribute :before_receiving_hooks, default: []
     attribute :after_receiving_hooks, default: []
