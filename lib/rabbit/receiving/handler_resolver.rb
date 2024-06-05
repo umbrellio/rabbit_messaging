@@ -21,8 +21,13 @@ module Rabbit::Receiving::HandlerResolver
     private
 
     def unmemoized_handler_for(group_id, event)
-      name = "rabbit/handler/#{group_id}/#{event}".camelize
-      handler = name.safe_constantize
+      handler = if Rabbit.config.handler_resolver_callable.is_a?(Proc)
+                  Rabbit.config.handler_resolver_callable.call(group_id, event)
+                else
+                  name = "rabbit/handler/#{group_id}/#{event}".camelize
+                  name.safe_constantize
+                end
+
       if handler && handler < Rabbit::EventHandler
         handler
       else

@@ -20,6 +20,9 @@ SimpleCov.enable_coverage(:line)
 SimpleCov.add_filter "spec"
 SimpleCov.start
 
+require "active_support/deprecation"
+require "active_support/deprecator"
+
 require "rabbit_messaging"
 
 require "rspec/its"

@@ -47,6 +47,8 @@ describe "Receiving messages" do
   before do
     Rabbit.config.queue_name_conversion = -> (queue) { "#{queue}_prepared" }
 
+    Rabbit.config.handler_resolver_callable = nil
+
     Rabbit.config.before_receiving_hooks = [before_hook]
     Rabbit.config.after_receiving_hooks  = [after_hook]
 
@@ -58,20 +60,68 @@ describe "Receiving messages" do
     handler.ignore_queue_conversion = conversion
   end
 
-  after do
-    worker.work_with_params(message, delivery_info, arguments)
-  end
+  subject(:run_receive) { worker.work_with_params(message, delivery_info, arguments) }
 
   shared_examples "check job queue and some handler" do
     specify do
       expect_job_queue_to_be_set
       expect_some_handler_to_be_called
       expect_hooks_to_be_called
+
+      run_receive
     end
   end
 
   context "job enqueued successfully" do
     context "message is valid" do
+      context "handler resolver represent by config" do
+        before { Rabbit.config.handler_resolver_callable = -> (_m, _g) { test_handler } }
+        after { Rabbit.config.handler_resolver_callable = nil }
+
+        let(:test_handler) do
+          Class.new(Rabbit::EventHandler) do
+            def self.queue
+              :test
+            end
+
+            def call; end
+          end
+        end
+        let(:queue) { "test_prepared" }
+        let(:event) { "magic_event" }
+
+        it "perform our handler" do
+          expect(test_handler).to receive(:new).and_call_original
+          expect_any_instance_of(test_handler).to receive(:call) do |inst|
+            expect(inst.message.data).to eq(message)
+          end
+          expect(handler).not_to receive(:new)
+
+          run_receive
+        end
+
+        context "but resolved handler is invalid" do
+          let(:event) { "magic_evnet2" }
+          let(:test_handler) do
+            Class.new do
+              def self.queue
+                :test
+              end
+
+              def call; end
+            end
+          end
+
+          it "notifies about exception" do
+            expect_notification do |exception|
+              expect(exception.message).to eq(error_msg)
+            end
+
+            run_receive
+          end
+        end
+      end
+
       context "handler is found" do
         let(:queue) { "world_some_successful_event_prepared" }
 
@@ -80,6 +130,8 @@ describe "Receiving messages" do
 
           expect_job_queue_to_be_set
           expect_some_handler_to_be_called
+
+          run_receive
         end
 
         context "job performs unsuccessfully" do
@@ -92,6 +144,8 @@ describe "Receiving messages" do
             expect_notification do |exception|
               expect(exception.message).to eq("Unsuccessful event error")
             end
+
+            run_receive
           end
         end
 
@@ -114,6 +168,8 @@ describe "Receiving messages" do
                 expect_job_queue_to_be_set
                 expect_empty_handler_to_be_called
                 expect_hooks_to_be_called
+
+                run_receive
               end
             end
           end
@@ -133,6 +189,8 @@ describe "Receiving messages" do
                 expect_job_queue_to_be_set
                 expect_empty_handler_to_be_called
                 expect_hooks_to_be_called
+
+                run_receive
               end
             end
           end
@@ -162,6 +220,8 @@ describe "Receiving messages" do
           expect_notification do |exception|
             expect(exception.message).to eq(error_msg)
           end
+
+          run_receive
         end
       end
     end
@@ -173,6 +233,7 @@ describe "Receiving messages" do
       # can't set job, raises malformed message when tries to determine queue name
       it "notifies about exception" do
         expect_notification.with(Rabbit::Receiving::MalformedMessage)
+        run_receive
       end
     end
 
@@ -193,6 +254,8 @@ describe "Receiving messages" do
         expect(job_class).not_to receive(:set).with(queue: queue)
         expect(custom_job_class).to receive(:set).with(queue: queue)
         expect(custom_job).to receive(:perform_later)
+
+        run_receive
       end
 
       it "receiving_job_class_callable receives the full message context" do
@@ -201,6 +264,8 @@ describe "Receiving messages" do
           delivery_info: delivery_info,
           arguments: arguments,
         )
+
+        run_receive
       end
     end
   end
@@ -218,6 +283,8 @@ describe "Receiving messages" do
     specify do
       expect_notification.with(error)
       expect(worker).to receive(:requeue!)
+
+      run_receive
     end
   end
 end
