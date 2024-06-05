@@ -149,14 +149,14 @@ Rabbit.publish(
 to teardown and setup external connections between daemon restarts, for example ORM connections
 
 - After the server runs, received messages are handled by `Rabbit::EventHandler` subclasses in two possible ways:
-  a)  Subclasses are selected by following code(by default):
-      ```ruby
-        "rabbit/handler/#{group_id}/#{event}".camelize.constantize
-      ```
-  b) you can change default behaviour to your own logic by setting the `handler_resolver_callable` config option with a `Proc` that should return the handler class:
-      ```ruby
-        Rabbit.config.handler_resolver_callable = -> (group_id, event) { "recivers/#{group_id}/#{event}".camelize.constantize }
-      ```
+  - a)  Subclasses are selected by following code(by default):
+    ```ruby
+    rabbit/handler/#{group_id}/#{event}".camelize.constantize
+    ```
+  - b) you can change default behaviour to your own logic by setting the `handler_resolver_callable` config option with a `Proc` that should return the handler class:
+    ```ruby
+    Rabbit.config.handler_resolver_callable = -> (group_id, event) { "recivers/#{group_id}/#{event}".camelize.constantize }
+    ```
 
   They use powerful `Tainbox` api to handle message data. Project_id also passed to them.
 
