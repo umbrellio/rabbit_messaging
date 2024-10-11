@@ -57,7 +57,7 @@ class Rabbit::Receiving::Receive
   end
 
   def job_configs
-    queue.handler.job_configs
+    queue.handler.additional_job_configs
   end
 
   def queue_name

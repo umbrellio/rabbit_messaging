@@ -12,13 +12,21 @@ class Rabbit::EventHandler
 
   class_attribute :queue
   class_attribute :ignore_queue_conversion, default: false
-  class_attribute :job_configs, default: {}
+  class_attribute :additional_job_configs, default: {}
 
   class << self
     private
 
     def queue_as(queue = nil, &block)
       self.queue = queue || block
+    end
+
+    def job_config(**config_opts)
+      self.additional_job_configs.merge!(config_opts)
+    end
+
+    def job_configs(**config_opts)
+      self.additional_job_configs = config_opts
     end
   end
 
