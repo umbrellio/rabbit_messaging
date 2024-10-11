@@ -9,6 +9,7 @@ describe "Receiving messages" do
   let(:arguments)     { { type: event, app_id: "some_group.some_app", message_id: "uuid" } }
   let(:event)         { "some_successful_event" }
   let(:job_class)     { Rabbit::Receiving::Job }
+  let(:job_configs)    { {} }
   let(:conversion)    { false }
   let(:handler)       { Rabbit::Handler::SomeGroup::SomeSuccessfulEvent }
   let(:before_hook)   { double("before hook") }
@@ -16,7 +17,7 @@ describe "Receiving messages" do
   let(:message_info)  { arguments.merge(delivery_info.slice(:exchange, :routing_key)) }
 
   def expect_job_queue_to_be_set
-    expect(job_class).to receive(:set).with(queue: queue)
+    expect(job_class).to receive(:set).with(queue: queue, **job_configs)
   end
 
   def expect_some_handler_to_be_called
@@ -233,6 +234,19 @@ describe "Receiving messages" do
       # can't set job, raises malformed message when tries to determine queue name
       it "notifies about exception" do
         expect_notification.with(Rabbit::Receiving::MalformedMessage)
+        run_receive
+      end
+    end
+
+    context "custom job configuration" do
+      let(:queue) { "custom_queue" }
+      let(:job_configs) { Hash[some: :kek, pek: 123] }
+      let(:handler) { Rabbit::Handler::SomeGroup::SomeConfigurableEventHandler }
+
+      before { handler.job_configs(job_configs) }
+      after { handler.job_configs({}) }
+
+      it "invokes job with custom config" do
         run_receive
       end
     end

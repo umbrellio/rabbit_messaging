@@ -14,6 +14,14 @@ module Rabbit::Handler
       def call; end
     end
 
+    class SomeConfigurableEventHandler < Rabbit::EventHandler
+      queue_as { |message, arguments| "#{message.data[:hello]}_#{arguments[:type]}" }
+
+      attribute :hello
+
+      def call; end
+    end
+
     class SomeUnsuccessfulEvent < Rabbit::EventHandler
       queue_as :custom
 

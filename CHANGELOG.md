@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.16.0] - 2024-10-11
+### Added
+- **Receiving**
+  - Support for custom receiving job config which is placed in receiving event handler;
+
 ## [0.15.0] - 2024-06-05
 ### Added
 - Support for custom reciving handler via `Rabbit.config.handler_resolver_callable` config;

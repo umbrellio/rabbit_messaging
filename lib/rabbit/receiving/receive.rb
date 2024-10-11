@@ -28,7 +28,7 @@ class Rabbit::Receiving::Receive
 
   def process_message
     job_class
-      .set(queue: queue)
+      .set(queue: queue_name, **job_configs)
       .perform_later(message, message_info)
   end
 
@@ -53,7 +53,15 @@ class Rabbit::Receiving::Receive
   end
 
   def queue
-    Rabbit::Receiving::Queue.new(message, arguments).name
+    @queue ||= Rabbit::Receiving::Queue.new(message, arguments)
+  end
+
+  def job_configs
+    queue.handler.additional_job_configs
+  end
+
+  def queue_name
+    queue.name
   end
 
   def job_class
