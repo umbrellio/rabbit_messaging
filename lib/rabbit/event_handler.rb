@@ -12,6 +12,7 @@ class Rabbit::EventHandler
 
   class_attribute :queue
   class_attribute :ignore_queue_conversion, default: false
+  class_attribute :job_configs, default: {}
 
   class << self
     private
