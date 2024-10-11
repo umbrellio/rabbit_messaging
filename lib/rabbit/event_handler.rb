@@ -22,7 +22,7 @@ class Rabbit::EventHandler
     end
 
     def job_config(**config_opts)
-      self.additional_job_configs.merge!(config_opts)
+      additional_job_configs.merge!(config_opts)
     end
 
     def job_configs(**config_opts)
