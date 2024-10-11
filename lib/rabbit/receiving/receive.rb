@@ -28,7 +28,7 @@ class Rabbit::Receiving::Receive
 
   def process_message
     job_class
-      .set(queue: queue, **job_configs)
+      .set(queue: queue_name, **job_configs)
       .perform_later(message, message_info)
   end
 
