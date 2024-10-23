@@ -138,7 +138,7 @@ GEM
     mini_portile2 (2.8.7)
     minitest (5.25.1)
     mutex_m (0.2.0)
-    net-imap (0.5.0)
+    net-imap (0.4.17)
       date
       net-protocol
     net-pop (0.1.2)
@@ -295,6 +295,7 @@ PLATFORMS
 DEPENDENCIES
   bundler
   bundler-audit
+  net-imap (~> 0.4.1)
   pry
   rabbit_messaging!
   rails (~> 7.1.1)

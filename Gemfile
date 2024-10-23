@@ -13,4 +13,6 @@ gem "rspec-its"
 gem "rubocop-config-umbrellio"
 gem "simplecov"
 gem "simplecov-lcov"
+
+gem "net-imap", "~> 0.4.1"
 gem "zeitwerk", "~> 2.6.1"
