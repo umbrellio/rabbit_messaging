@@ -6,7 +6,7 @@ gemspec
 gem "bundler"
 gem "bundler-audit"
 gem "pry"
-gem "rails"
+gem "rails", "~> 6.1"
 gem "rake"
 gem "rspec"
 gem "rspec-its"
