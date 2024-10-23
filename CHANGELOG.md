@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [0.16.0] - 2024-10-23
+### Added
+- Remove `sneakers` gem in favour of [kicks](https://github.com/ruby-amqp/kicks)
+
 ## [0.15.0] - 2024-06-05
 ### Added
 - Support for custom reciving handler via `Rabbit.config.handler_resolver_callable` config;
@@ -23,7 +27,7 @@ All notable changes to this project will be documented in this file.
 - `Gemfile.lock` added
 
 ### Fixed
-- `unless Sneakers.logger` was never executed  
+- `unless Sneakers.logger` was never executed
 
 ## [0.11.0] - 2021-05-05
 ### Added
