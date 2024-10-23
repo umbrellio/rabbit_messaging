@@ -5,7 +5,7 @@ PATH
       bunny (~> 2.0)
       kicks (~> 3)
       lamian
-      rails (>= 5.2)
+      rails (>= 6.1)
       tainbox
 
 GEM
