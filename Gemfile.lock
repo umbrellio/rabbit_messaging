@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rabbit_messaging (1.0.0)
+    rabbit_messaging (0.16.0)
       bunny (~> 2.0)
       kicks (~> 3)
       lamian
