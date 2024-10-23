@@ -19,9 +19,9 @@ Gem::Specification.new do |spec|
   spec.files = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^spec/}) }
   spec.require_paths = ["lib"]
 
-  spec.add_runtime_dependency "bunny", "~> 2.0"
-  spec.add_runtime_dependency "kicks", "~> 3"
-  spec.add_runtime_dependency "lamian"
-  spec.add_runtime_dependency "rails", ">= 5.2"
-  spec.add_runtime_dependency "tainbox"
+  spec.add_dependency "bunny", "~> 2.0"
+  spec.add_dependency "kicks", "~> 3"
+  spec.add_dependency "lamian"
+  spec.add_dependency "rails", ">= 5.2"
+  spec.add_dependency "tainbox"
 end
