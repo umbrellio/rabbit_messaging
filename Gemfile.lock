@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rabbit_messaging (0.16.0)
+    rabbit_messaging (1.0.0)
       bunny (~> 2.0)
       kicks (~> 3)
       lamian
@@ -306,4 +306,4 @@ DEPENDENCIES
   simplecov-lcov
 
 BUNDLED WITH
-   2.4.7
+   2.3.20
