@@ -239,14 +239,17 @@ describe "Receiving messages" do
     end
 
     context "custom job configuration" do
-      let(:queue) { "custom_queue" }
       let(:job_configs) { Hash[some: :kek, pek: 123] }
-      let(:handler) { Rabbit::Handler::SomeGroup::SomeConfigurableEventHandler }
+      let(:handler)     { Rabbit::Handler::SomeGroup::SomeConfigurableEventHandler }
+      let(:queue)       { "world_some_successful_event_prepared" }
 
       before { handler.job_configs(job_configs) }
       after { handler.job_configs({}) }
 
       it "invokes job with custom config" do
+        expect_job_queue_to_be_set
+        expect_empty_handler_to_be_called
+        expect_hooks_to_be_called
         run_receive
       end
     end

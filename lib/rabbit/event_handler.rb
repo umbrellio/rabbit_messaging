@@ -15,8 +15,6 @@ class Rabbit::EventHandler
   class_attribute :additional_job_configs, default: {}
 
   class << self
-    private
-
     def queue_as(queue = nil, &block)
       self.queue = queue || block
     end
@@ -25,7 +23,7 @@ class Rabbit::EventHandler
       additional_job_configs.merge!(config_opts)
     end
 
-    def job_configs(**config_opts)
+    def job_configs(config_opts)
       self.additional_job_configs = config_opts
     end
   end
