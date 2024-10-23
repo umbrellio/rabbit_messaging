@@ -2,7 +2,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [0.16.0] - 2024-10-23
-### Added
+### Changed
 - Remove `sneakers` gem in favour of [kicks](https://github.com/ruby-amqp/kicks)
 
 ## [0.15.0] - 2024-06-05
