@@ -1,11 +1,11 @@
 PATH
   remote: .
   specs:
-    rabbit_messaging (0.15.0)
+    rabbit_messaging (0.16.0)
       bunny (~> 2.0)
+      kicks (~> 3)
       lamian
       rails (>= 5.2)
-      sneakers (~> 2.0)
       tainbox
 
 GEM
@@ -114,8 +114,15 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     json (2.6.3)
+    kicks (3.1.0)
+      bunny (~> 2.19)
+      concurrent-ruby (~> 1.0)
+      rake (>= 12.3, < 14.0)
+      serverengine (~> 2.1)
+      thor
     lamian (1.7.0)
       rails (>= 4.2)
+    logger (1.6.1)
     loofah (2.22.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -248,10 +255,12 @@ GEM
     rubocop-sequel (0.3.4)
       rubocop (~> 1.0)
     ruby-progressbar (1.11.0)
-    serverengine (2.0.7)
+    serverengine (2.4.0)
+      base64 (~> 0.1)
+      logger (~> 1.4)
       sigdump (~> 0.2.2)
     set (1.0.3)
-    sigdump (0.2.4)
+    sigdump (0.2.5)
     simplecov (0.22.0)
       docile (~> 1.1)
       simplecov-html (~> 0.11)
@@ -259,12 +268,6 @@ GEM
     simplecov-html (0.12.3)
     simplecov-lcov (0.8.0)
     simplecov_json_formatter (0.1.4)
-    sneakers (2.11.0)
-      bunny (~> 2.12)
-      concurrent-ruby (~> 1.0)
-      rake
-      serverengine (~> 2.0.5)
-      thor
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)
