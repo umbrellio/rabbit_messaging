@@ -120,7 +120,7 @@ GEM
       rake (>= 12.3, < 14.0)
       serverengine (~> 2.1)
       thor
-    lamian (1.10.0)
+    lamian (1.9.0)
       rails (>= 4.2)
     language_server-protocol (3.17.0.3)
     logger (1.6.1)
@@ -295,17 +295,15 @@ PLATFORMS
 DEPENDENCIES
   bundler
   bundler-audit
-  net-imap (~> 0.4.1)
   pry
   rabbit_messaging!
-  rails (~> 7.1.1)
+  rails
   rake
   rspec
   rspec-its
   rubocop-config-umbrellio
   simplecov
   simplecov-lcov
-  zeitwerk (~> 2.6.1)
 
 BUNDLED WITH
    2.4.7
