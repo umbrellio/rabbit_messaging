@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2024-12-06
+### Added
+- **Receiving**
+  - Support for custom receiving job config which is placed in receiving event handler;
+
 ## [1.0.0] - 2024-10-23
 ### Changed
 - Remove `sneakers` gem in favour of [kicks](https://github.com/ruby-amqp/kicks)

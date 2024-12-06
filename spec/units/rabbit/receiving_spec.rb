@@ -9,6 +9,7 @@ describe "Receiving messages" do
   let(:arguments)     { { type: event, app_id: "some_group.some_app", message_id: "uuid" } }
   let(:event)         { "some_successful_event" }
   let(:job_class)     { Rabbit::Receiving::Job }
+  let(:job_configs)   { {} }
   let(:conversion)    { false }
   let(:handler)       { Rabbit::Handler::SomeGroup::SomeSuccessfulEvent }
   let(:before_hook)   { double("before hook") }
@@ -16,7 +17,7 @@ describe "Receiving messages" do
   let(:message_info)  { arguments.merge(delivery_info.slice(:exchange, :routing_key)) }
 
   def expect_job_queue_to_be_set
-    expect(job_class).to receive(:set).with(queue: queue)
+    expect(job_class).to receive(:set).with(queue: queue, **job_configs)
   end
 
   def expect_some_handler_to_be_called
@@ -52,7 +53,7 @@ describe "Receiving messages" do
     Rabbit.config.before_receiving_hooks = [before_hook]
     Rabbit.config.after_receiving_hooks  = [after_hook]
 
-    allow(job_class).to receive(:set).with(queue: queue).and_call_original
+    allow(job_class).to receive(:set).with(queue: queue, **job_configs).and_call_original
 
     allow(before_hook).to receive(:call).with(message, message_info)
     allow(after_hook).to receive(:call).with(message, message_info)
@@ -132,6 +133,17 @@ describe "Receiving messages" do
           expect_some_handler_to_be_called
 
           run_receive
+        end
+
+        context "custom job configuration" do
+          let(:job_configs) { Hash[some: :kek, pek: 123] }
+
+          before { handler.additional_job_configs = job_configs }
+          after { handler.additional_job_configs = {} }
+
+          it "invokes job with custom config" do
+            run_receive
+          end
         end
 
         context "job performs unsuccessfully" do
