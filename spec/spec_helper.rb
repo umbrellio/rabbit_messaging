@@ -49,4 +49,7 @@ RSpec.configure do |config|
 
   config.default_formatter = "doc" if config.files_to_run.one?
   config.expose_dsl_globally = true
+
+  config.order = :random
+  Kernel.srand(config.seed)
 end

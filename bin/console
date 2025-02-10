@@ -1,5 +1,9 @@
 #!/usr/bin/env ruby
 
+# Required for tainbox :(
+require "active_support/deprecation"
+require "active_support/deprecator"
+
 require "bundler/setup"
 require "rabbit_messaging"
 
