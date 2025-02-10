@@ -51,9 +51,6 @@ RSpec.describe Rabbit do
 
     it "publishes" do
       if expect_to_use_job
-        log_line = 'test_group_id.test_project_id.some_exchange / some_queue / ' \
-                   '{"foo"=>"bar"} / some_event / confirm: {"hello"=>"world"}'
-
         set_params = { queue: "default_prepared" }
         expect(Rabbit::Publishing::Job).to receive(:set).with(set_params).and_call_original
         perform_params = {
@@ -70,12 +67,13 @@ RSpec.describe Rabbit do
           .to receive(:perform_later).with(perform_params).and_call_original
 
       else
-        log_line = 'test_group_id.test_project_id.some_exchange / some_queue / ' \
-                   '{"foo"=>"bar"} / some_event / confirm: {:hello=>:world}'
         expect(Rabbit::Publishing::Job).not_to receive(:perform_later)
       end
 
-      expect(publish_logger).to receive(:debug).with(log_line).once
+      expect(publish_logger).to receive(:debug).with(<<~MSG.strip).once
+        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
+        confirm: {"hello":"world"}
+      MSG
       described_class.publish(message_options)
     end
 

@@ -96,6 +96,7 @@ GEM
     amq-protocol (2.3.2)
     ast (2.4.2)
     base64 (0.2.0)
+    benchmark (0.4.0)
     bigdecimal (3.1.8)
     builder (3.3.0)
     bundler-audit (0.9.2)
@@ -159,6 +160,7 @@ GEM
     nokogiri (1.16.8)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
+    ostruct (0.6.1)
     parallel (1.26.3)
     parser (3.3.5.0)
       ast (~> 2.4.1)
@@ -301,8 +303,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  benchmark
   bundler
   bundler-audit
+  ostruct
   pry
   rabbit_messaging!
   rails

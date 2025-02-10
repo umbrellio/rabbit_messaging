@@ -3,8 +3,10 @@
 source "https://rubygems.org"
 gemspec
 
+gem "benchmark"
 gem "bundler"
 gem "bundler-audit"
+gem "ostruct"
 gem "pry"
 gem "rails"
 gem "rake"

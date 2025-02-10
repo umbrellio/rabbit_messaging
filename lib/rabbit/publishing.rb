@@ -50,11 +50,11 @@ module Rabbit
       @logger ||= Rabbit.config.publish_logger
 
       metadata = [
-        message.real_exchange_name, message.routing_key, message.headers,
+        message.real_exchange_name, message.routing_key, JSON.dump(message.headers),
         message.event, message.confirm_select? ? "confirm" : "no-confirm"
       ]
 
-      @logger.debug "#{metadata.join ' / '}: #{message.data}"
+      @logger.debug "#{metadata.join ' / '}: #{JSON.dump(message.data)}"
     end
   end
 end
