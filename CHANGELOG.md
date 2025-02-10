@@ -1,10 +1,23 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [0.15.0] - 2024-03-28
+## [1.2.0] - 2025-02-10
 ### Added
 - Add `ExponentialBackoffHandler` for handling errors in rabbit messages
 - Optional `queue_suffix` config for read queues
+
+## [1.1.0] - 2024-12-06
+### Added
+- **Receiving**
+  - Support for custom receiving job config which is placed in receiving event handler;
+
+## [1.0.0] - 2024-10-23
+### Changed
+- Remove `sneakers` gem in favour of [kicks](https://github.com/ruby-amqp/kicks)
+
+## [0.15.0] - 2024-06-05
+### Added
+- Support for custom reciving handler via `Rabbit.config.handler_resolver_callable` config;
 
 ## [0.14.0] - 2023-02-27
 ### Added

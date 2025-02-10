@@ -3,7 +3,7 @@ inherit_gem:
 
 AllCops:
   DisplayCopNames: true
-  TargetRubyVersion: 2.7
+  TargetRubyVersion: 3.0
   SuggestExtensions: false
   Include:
     - lib/**/*.rb
@@ -14,15 +14,18 @@ AllCops:
     - bin/console
     - environments/*.rb
 
+RSpec/ReceiveMessages:
+  Enabled: false
+
+RSpec/VerifiedDoubleReference:
+  EnforcedStyle: string
+
 Style/Alias:
   EnforcedStyle: prefer_alias_method
 
 Style/HashConversion:
   Exclude:
     - spec/**/*
-
-RSpec/VerifiedDoubleReference:
-  EnforcedStyle: string
 
 RSpec/ExampleLength:
   Max: 50
