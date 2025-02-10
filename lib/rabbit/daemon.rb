@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "sneakers"
-require "sneakers_handlers"
 require "lamian"
 require "sneakers/runner"
 
@@ -26,16 +25,7 @@ module Rabbit
 
       Rabbit.config.validate!
 
-      Receiving::Worker.from_queue(
-        Rabbit.config.read_queue,
-        handler: SneakersHandlers::ExponentialBackoffHandler, # TODO: add config
-        max_retries: Rabbit.config.backoff_handler_max_retries,
-        arguments: {
-          "x-dead-letter-exchange" => "#{Rabbit.config.read_queue}.dlx",
-          "x-dead-letter-routing-key" => "#{Rabbit.config.read_queue}.dlx",
-        },
-      )
-
+      Receiving::Worker.from_queue(Rabbit.config.read_queue, **worker_options)
       Sneakers::Runner.new([Receiving::Worker]).run
     end
 
@@ -68,6 +58,21 @@ module Rabbit
         exit_on_detach: true,
         log: logger,
         **config,
+      }
+    end
+
+    def worker_options
+      return {} unless Rabbit.config.use_backoff_handler
+
+      require "sneakers_handlers"
+
+      {
+        handler: SneakersHandlers::ExponentialBackoffHandler,
+        max_retries: Rabbit.config.backoff_handler_max_retries,
+        arguments: {
+          "x-dead-letter-exchange" => "#{Rabbit.config.read_queue}.dlx",
+          "x-dead-letter-routing-key" => "#{Rabbit.config.read_queue}.dlx",
+        },
       }
     end
   end

@@ -16,11 +16,11 @@ module Rabbit
   class Config
     include Tainbox
 
-    attribute :group_id, Symbol
-    attribute :project_id, Symbol
-    attribute :queue_suffix, String
+    attribute :group_id, :Symbol
+    attribute :project_id, :Symbol
+    attribute :queue_suffix, :String
     attribute :hooks, default: {}
-    attribute :environment, Symbol, default: :production
+    attribute :environment, :Symbol, default: :production
     attribute :queue_name_conversion
     attribute :receiving_job_class_callable
     attribute :handler_resolver_callable
@@ -28,6 +28,7 @@ module Rabbit
     attribute :before_receiving_hooks, default: []
     attribute :after_receiving_hooks, default: []
     attribute :skip_publishing_in, default: %i[test development]
+    attribute :use_backoff_handler, :Boolean, default: false
     attribute :backoff_handler_max_retries, Integer, default: 6
 
     attribute :receive_logger, default: lambda {
