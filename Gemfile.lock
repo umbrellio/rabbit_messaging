@@ -11,7 +11,6 @@ PATH
     rabbit_messaging (1.2.0)
       bunny (~> 2.0)
       kicks (~> 3)
-      lamian
       rails (>= 6.1)
       tainbox
 
@@ -125,8 +124,6 @@ GEM
       rake (>= 12.3, < 14.0)
       serverengine (~> 2.1)
       thor
-    lamian (1.9.0)
-      rails (>= 4.2)
     language_server-protocol (3.17.0.3)
     logger (1.6.1)
     loofah (2.23.1)
