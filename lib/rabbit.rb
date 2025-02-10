@@ -61,7 +61,7 @@ module Rabbit
     end
 
     def read_queue
-      [app_name, queue_suffix].compact.join(".")
+      [app_name, queue_suffix].reject { |x| x.nil? || x.empty? }.join(".")
     end
   end
 

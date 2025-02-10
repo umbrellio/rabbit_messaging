@@ -104,6 +104,18 @@ RSpec.describe Rabbit do
     describe "#read_queue" do
       specify { expect(Rabbit.config.read_queue).to eq("test_group_id.test_project_id") }
 
+      context "with nil suffix provided" do
+        before { Rabbit.config.queue_suffix = nil }
+
+        specify { expect(Rabbit.config.read_queue).to eq("test_group_id.test_project_id") }
+      end
+
+      context "with blank suffix provided" do
+        before { Rabbit.config.queue_suffix = "" }
+
+        specify { expect(Rabbit.config.read_queue).to eq("test_group_id.test_project_id") }
+      end
+
       context "with suffix provided" do
         before { Rabbit.config.queue_suffix = "smth" }
 

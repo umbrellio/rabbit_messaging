@@ -28,7 +28,7 @@ module Rabbit
 
       Receiving::Worker.from_queue(
         Rabbit.config.read_queue,
-        handler: SneakersHandlers::ExponentialBackoffHandler,
+        handler: SneakersHandlers::ExponentialBackoffHandler, # TODO: add config
         max_retries: Rabbit.config.backoff_handler_max_retries,
         arguments: {
           "x-dead-letter-exchange" => "#{Rabbit.config.read_queue}.dlx",

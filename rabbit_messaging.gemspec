@@ -23,6 +23,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "kicks", "~> 3"
   spec.add_dependency "lamian"
   spec.add_dependency "rails", ">= 6.1"
-  spec.add_dependency "sneakers_handlers"
   spec.add_dependency "tainbox"
 end

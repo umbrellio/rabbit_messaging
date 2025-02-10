@@ -1,3 +1,11 @@
+GIT
+  remote: https://github.com/umbrellio/sneakers_handlers.git
+  revision: 2fd531a99c85f042923ae8b8bd0f3b340af4d15f
+  branch: gt-1241-test-rabbit-dlx
+  specs:
+    sneakers_handlers (0.1.0)
+      kicks
+
 PATH
   remote: .
   specs:
@@ -6,7 +14,6 @@ PATH
       kicks (~> 3)
       lamian
       rails (>= 6.1)
-      sneakers_handlers
       tainbox
 
 GEM
@@ -273,13 +280,6 @@ GEM
     simplecov-html (0.13.1)
     simplecov-lcov (0.8.0)
     simplecov_json_formatter (0.1.4)
-    sneakers (0.0.7)
-      bunny (>= 0.10.0)
-      serverengine
-      thor
-      thread
-    sneakers_handlers (0.0.6)
-      sneakers
     sorted_set (1.0.3)
       rbtree
       set (~> 1.0)
@@ -287,7 +287,6 @@ GEM
     tainbox (2.1.2)
       activesupport
     thor (1.3.2)
-    thread (0.2.2)
     timeout (0.4.1)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -313,6 +312,7 @@ DEPENDENCIES
   rubocop-config-umbrellio
   simplecov
   simplecov-lcov
+  sneakers_handlers!
 
 BUNDLED WITH
    2.5.22
