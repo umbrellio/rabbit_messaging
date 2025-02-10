@@ -40,8 +40,8 @@ module Rabbit
     end
 
     def create_client
-      config = Rails.application.config_for("sneakers") rescue {}
-      config = config["bunny_options"].to_h.symbolize_keys
+      config = Rabbit.sneakers_config
+      config = config[:bunny_options].to_h.symbolize_keys
 
       Bunny.new(config).start
     end

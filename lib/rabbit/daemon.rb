@@ -23,7 +23,7 @@ module Rabbit
     end
 
     def config
-      @config ||= Rails.application.config_for("sneakers").symbolize_keys
+      @config ||= Rabbit.sneakers_config
     end
 
     def connection
@@ -42,7 +42,7 @@ module Rabbit
     def sneakers_config(logger:)
       {
         connection: connection,
-        env: Rails.env,
+        env: Rabbit.config.environment,
         exchange_type: :direct,
         exchange: Rabbit.config.app_name,
         hooks: Rabbit.config.hooks,

@@ -6,10 +6,6 @@ Bundler.require(:default, :development)
 require "active_job"
 require "active_record"
 
-def Rails.root
-  Pathname.new(__dir__).join("..")
-end
-
 ActiveJob::Base.queue_adapter = :inline
 ActiveJob::Base.logger = Logger.new("/dev/null")
 

@@ -1,0 +1,9 @@
+default: &default
+  foo: 1
+  bunny_options:
+    bar: 2
+    log_level: warn
+
+development: *default
+test: *default
+production: *default
