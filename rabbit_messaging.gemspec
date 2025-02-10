@@ -20,6 +20,6 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "bunny", "~> 2.0"
-  spec.add_dependency "kicks", "~> 3"
+  spec.add_dependency "kicks"
   spec.add_dependency "tainbox"
 end
