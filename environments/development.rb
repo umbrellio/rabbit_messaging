@@ -7,7 +7,7 @@ require "active_job"
 require "active_record"
 
 ActiveJob::Base.queue_adapter = :inline
-ActiveJob::Base.logger = Logger.new("/dev/null")
+ActiveJob::Base.logger = Logger.new(nil)
 
 Rabbit.config.project_id = "test_project_id"
 Rabbit.config.group_id = "test_group_id"
