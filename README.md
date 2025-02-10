@@ -111,9 +111,22 @@ require "rabbit_messaging"
 
       config.after_receiving_hooks.append(proc { |message, arguments| do_stuff_3 })
       config.after_receiving_hooks.append(proc { |message, arguments| do_stuff_4 })
-
     ```
 
+  - `use_backoff_handler` (`Boolean`)
+
+    If set to `true`, use `ExponentialBackoffHandler`. You will also need add the following line to your Gemfile:
+
+    ```ruby
+    gem "sneakers_handlers", github: "umbrellio/sneakers_handlers"
+    ```
+
+    See https://github.com/umbrellio/sneakers_handlers for more details.
+
+
+  - `backoff_handler_max_retries` (`Integer`)
+
+    Number of retries that `ExponentialBackoffHandler` will use before sending job to the error queue. 5 by default.
 ---
 
 ### Client
