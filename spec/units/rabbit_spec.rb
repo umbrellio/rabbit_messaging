@@ -49,11 +49,8 @@ RSpec.describe Rabbit do
       )
     end
 
-    it "publishes" do # rubocop:disable RSpec/ExampleLength
+    it "publishes" do
       if expect_to_use_job
-        log_line = 'test_group_id.test_project_id.some_exchange / some_queue / ' \
-                   '{"foo"=>"bar"} / some_event / confirm: {"hello"=>"world"}'
-
         set_params = { queue: "default_prepared" }
         expect(Rabbit::Publishing::Job).to receive(:set).with(set_params).and_call_original
         perform_params = {
@@ -66,17 +63,17 @@ RSpec.describe Rabbit do
           headers: { "foo" => "bar" },
           message_id: "uuid",
         }
-        expect_any_instance_of(ActiveJob::ConfiguredJob).to receive(:perform_later)
-                                                                .with(perform_params)
-                                                                .and_call_original
+        expect_any_instance_of(ActiveJob::ConfiguredJob)
+          .to receive(:perform_later).with(perform_params).and_call_original
 
       else
-        log_line = 'test_group_id.test_project_id.some_exchange / some_queue / ' \
-                   '{"foo"=>"bar"} / some_event / confirm: {:hello=>:world}'
         expect(Rabbit::Publishing::Job).not_to receive(:perform_later)
       end
 
-      expect(publish_logger).to receive(:debug).with(log_line).once
+      expect(publish_logger).to receive(:debug).with(<<~MSG.strip).once
+        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
+        confirm: {"hello":"world"}
+      MSG
       described_class.publish(message_options)
     end
 
@@ -99,5 +96,29 @@ RSpec.describe Rabbit do
     let(:expect_to_use_job) { true }
 
     include_examples "publishes"
+  end
+
+  describe "config" do
+    describe "#read_queue" do
+      specify { expect(Rabbit.config.read_queue).to eq("test_group_id.test_project_id") }
+
+      context "with nil suffix provided" do
+        before { Rabbit.config.queue_suffix = nil }
+
+        specify { expect(Rabbit.config.read_queue).to eq("test_group_id.test_project_id") }
+      end
+
+      context "with blank suffix provided" do
+        before { Rabbit.config.queue_suffix = "" }
+
+        specify { expect(Rabbit.config.read_queue).to eq("test_group_id.test_project_id") }
+      end
+
+      context "with suffix provided" do
+        before { Rabbit.config.queue_suffix = "smth" }
+
+        specify { expect(Rabbit.config.read_queue).to eq("test_group_id.test_project_id.smth") }
+      end
+    end
   end
 end

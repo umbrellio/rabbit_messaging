@@ -33,38 +33,42 @@ require "rabbit_messaging"
 
 - `Rabbit.config` provides setters for following options:
 
-  * `group_id` (`Symbol`), *required*
+  - `group_id` (`Symbol`), *required*
 
     Shared identifier which used to select api. As usual, it should be same as default project_id
     (I.e. we have project 'support', which runs only one application in production.
     So on, it's group_id should be :support)
 
-  * `project_id` (`Symbol`), *required*
+  - `project_id` (`Symbol`), *required*
 
     Personal identifier which used to select exact service.
     As usual, it should be same as default project_id with optional stage_id.
     (I.e. we have project 'support', in production it's project_id is :support,
     but in staging it uses :support1 and :support2 ids for corresponding stages)
 
+  - `queue_suffix` (`String`)
 
-  * `exception_notifier` (`Proc`)
+    Optional suffix added to the read queue name. For example, in case of `group_id = "grp"`, `project_id = "prj"` and
+    `queue_suffix = "sfx"`, Rabbit will read from queue named `"grp.prj.sfx"`.
+
+  - `exception_notifier` (`Proc`)
     You must provide your own notifier like this to notify about exceptions:
-  
+
     ```ruby
       config.exception_notifier = proc { |e| MyCoolNotifier.notify!(e) }
     ```
 
-  * `hooks` (`Hash`)
+  - `hooks` (`Hash`)
 
     :before_fork and :after_fork hooks, used same way as in unicorn / puma / que / etc
 
-  * `environment` (one of `:test`, `:development`, `:production`), *default:* `:production`
+  - `environment` (one of `:test`, `:development`, `:production`), *default:- `:production`
 
     Internal environment of gem.
 
-      * `:test` environment stubs publishing and does not suppress errors
-      * `:development` environment auto-creates queues and uses default exchange
-      * `:production` environment enables handlers caching and gets maximum strictness
+    - `:test` environment stubs publishing and does not suppress errors
+    - `:development` environment auto-creates queues and uses default exchange
+    - `:production` environment enables handlers caching and gets maximum strictness
 
     By default gem skips publishing in test and development environments.
     If you want to change that then manually set `Rabbit.skip_publishing_in` with an array of environments.
@@ -73,13 +77,13 @@ require "rabbit_messaging"
      Rabbit.skip_publishing_in = %i[test]
     ```
 
-  * `receiving_job_class_callable` (`Proc`)
+  - `receiving_job_class_callable` (`Proc`)
 
     Custom ActiveJob subclass to work with received messages. Receives the following attributes as `kwarg`-arguments:
 
-    * `:arguments` - information about message type (`type`), application id (`app_id`), message id (`message_id`);
-    * `:delivery_info` - information about `exchange`, `routing_key`, etc;
-    * `:message` - received RabbitMQ message (often in a `string` format);
+    - `:arguments` - information about message type (`type`), application id (`app_id`), message id (`message_id`);
+    - `:delivery_info` - information about `exchange`, `routing_key`, etc;
+    - `:message` - received RabbitMQ message (often in a `string` format);
 
     ```ruby
     {
@@ -93,7 +97,7 @@ require "rabbit_messaging"
     }
     ```
 
-  * `before_receiving_hooks, after_receiving_hooks` (`Array of Procs`)
+  - `before_receiving_hooks, after_receiving_hooks` (`Array of Procs`)
 
     Before and after hooks with message processing in the middle. Where `before_receiving_hooks` and `after_receiving_hooks` are empty arrays by default.
 
@@ -107,8 +111,22 @@ require "rabbit_messaging"
 
       config.after_receiving_hooks.append(proc { |message, arguments| do_stuff_3 })
       config.after_receiving_hooks.append(proc { |message, arguments| do_stuff_4 })
-
     ```
+
+  - `use_backoff_handler` (`Boolean`)
+
+    If set to `true`, use `ExponentialBackoffHandler`. You will also need add the following line to your Gemfile:
+
+    ```ruby
+    gem "sneakers_handlers", github: "umbrellio/sneakers_handlers"
+    ```
+
+    See https://github.com/umbrellio/sneakers_handlers for more details.
+
+
+  - `backoff_handler_max_retries` (`Integer`)
+
+    Number of retries that `ExponentialBackoffHandler` will use before sending job to the error queue. 5 by default.
 ---
 
 ### Client
@@ -127,16 +145,16 @@ Rabbit.publish(
 
 - This code sends messages via basic_publish with following parameters:
 
-  * `routing_key`: `"support"`
-  * `exchange`: `"group_id.project_id.fanout"` (default is `"group_id.poject_id"`)
-  * `mandatory`: `true` (same as confirm_select)
+  - `routing_key`: `"support"`
+  - `exchange`: `"group_id.project_id.fanout"` (default is `"group_id.poject_id"`)
+  - `mandatory`: `true` (same as confirm_select)
 
     It is set to raise error if routing failed
 
-  * `persistent`: `true`
-  * `type`: `"ping"`
-  * `content_type`: `"application/json"` (always)
-  * `app_id`: `"group_id.project_id"`
+  - `persistent`: `true`
+  - `type`: `"ping"`
+  - `content_type`: `"application/json"` (always)
+  - `app_id`: `"group_id.project_id"`
 
 - Messages are logged to `/log/rabbit.log`
 

@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2025-02-10
+### Added
+- Add `ExponentialBackoffHandler` for handling errors in rabbit messages
+- Optional `queue_suffix` config for read queues
+
 ## [1.1.0] - 2024-12-06
 ### Added
 - **Receiving**

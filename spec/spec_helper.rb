@@ -20,6 +20,7 @@ SimpleCov.enable_coverage(:line)
 SimpleCov.add_filter "spec"
 SimpleCov.start
 
+# Required for tainbox :(
 require "active_support/deprecation"
 require "active_support/deprecator"
 
@@ -48,4 +49,7 @@ RSpec.configure do |config|
 
   config.default_formatter = "doc" if config.files_to_run.one?
   config.expose_dsl_globally = true
+
+  config.order = :random
+  Kernel.srand(config.seed)
 end
