@@ -56,6 +56,7 @@ module Rabbit
         supervisor: true,
         daemonize: false,
         exit_on_detach: true,
+        queue_options: { no_declare: true },
         log: logger,
         **config,
       }
