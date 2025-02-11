@@ -6,12 +6,8 @@ Bundler.require(:default, :development)
 require "active_job"
 require "active_record"
 
-def Rails.root
-  Pathname.new(__dir__).join("..")
-end
-
 ActiveJob::Base.queue_adapter = :inline
-ActiveJob::Base.logger = Logger.new("/dev/null")
+ActiveJob::Base.logger = Logger.new(nil)
 
 Rabbit.config.project_id = "test_project_id"
 Rabbit.config.group_id = "test_group_id"

@@ -32,15 +32,15 @@ module Rabbit
     attribute :backoff_handler_max_retries, Integer, default: 6
 
     attribute :receive_logger, default: lambda {
-      Logger.new(Rails.root.join("log", "incoming_rabbit_messages.log"))
+      Logger.new(Rabbit.root.join("log", "incoming_rabbit_messages.log"))
     }
 
     attribute :publish_logger, default: lambda {
-      Logger.new(Rails.root.join("log", "rabbit.log"))
+      Logger.new(Rabbit.root.join("log", "rabbit.log"))
     }
 
     attribute :malformed_logger, default: lambda {
-      Logger.new(Rails.root.join("log", "malformed_messages.log"))
+      Logger.new(Rabbit.root.join("log", "malformed_messages.log"))
     }
 
     def validate!
@@ -48,7 +48,7 @@ module Rabbit
       raise InvalidConfig, "missing group_id" unless group_id
       raise InvalidConfig, "missing exception_notifier" unless exception_notifier
 
-      unless environment.in? %i[test development production]
+      unless %i[test development production].include?(environment)
         raise "environment should be one of (test, development, production)"
       end
     end
@@ -72,6 +72,23 @@ module Rabbit
     @config ||= Config.new
     yield(@config) if block_given?
     @config
+  end
+
+  def root
+    if defined?(Rails)
+      Rails.root
+    else
+      Pathname.new(Dir.pwd)
+    end
+  end
+
+  def sneakers_config
+    if defined?(Rails)
+      Rails.application.config_for("sneakers")
+    else
+      config = YAML.load_file("config/sneakers.yml", aliases: true)
+      config[Rabbit.config.environment.to_s].to_h.symbolize_keys
+    end
   end
 
   def configure

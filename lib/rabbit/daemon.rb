@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "sneakers"
-require "lamian"
 require "sneakers/runner"
 
 require "rabbit/extensions/bunny/channel"
@@ -12,12 +11,6 @@ module Rabbit
     extend self
 
     def run(logger: Sneakers.logger)
-      unless logger
-        logger = Logger.new(Rails.root.join("log", "sneakers.log"))
-        logger.level = Logger::DEBUG
-        Lamian.extend_logger(logger)
-      end
-
       self.logger = logger
 
       Sneakers.configure(**sneakers_config(logger: logger))
@@ -30,7 +23,7 @@ module Rabbit
     end
 
     def config
-      @config ||= Rails.application.config_for("sneakers").symbolize_keys
+      @config ||= Rabbit.sneakers_config
     end
 
     def connection
@@ -49,7 +42,7 @@ module Rabbit
     def sneakers_config(logger:)
       {
         connection: connection,
-        env: Rails.env,
+        env: Rabbit.config.environment,
         exchange_type: :direct,
         exchange: Rabbit.config.app_name,
         hooks: Rabbit.config.hooks,
