@@ -84,7 +84,7 @@ module Rabbit
 
   def sneakers_config
     if defined?(Rails)
-      Rails.application.config_for(name)
+      Rails.application.config_for("sneakers")
     else
       config = YAML.load_file("config/sneakers.yml", aliases: true)
       config[Rabbit.config.environment.to_s].to_h.symbolize_keys
