@@ -30,6 +30,9 @@ RSpec.describe Rabbit::Daemon do
         bar: 2,
         log_level: "warn",
       },
+      queue_options: {
+        smth: 15,
+      }
     }
   end
 
@@ -46,6 +49,7 @@ RSpec.describe Rabbit::Daemon do
       daemonize: false,
       exit_on_detach: true,
       log: logger_double,
+      queue_options: { no_declare: true, smth: 15 },
       foo: 1,
     )
 
