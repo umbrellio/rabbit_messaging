@@ -84,6 +84,60 @@ RSpec.describe Rabbit do
     end
   end
 
+  context "retries on reset_exceptions" do
+    let(:realtime) { true }
+    let(:max_retries) { 2 }
+    let(:timeout) { 0.1 }
+    let(:publish_logger)   { double("publish_logger") }
+    let(:bunny)            { double("bunny") }
+    let(:channel)          { double("channel") }
+
+    before do
+      allow(Bunny).to receive_message_chain(:new, :start).and_return(bunny)
+      allow(bunny).to receive(:create_channel).and_return(channel)
+      allow(bunny).to receive(:channel_max).and_return(10)
+      allow(channel).to receive(:open?).and_return(true)
+
+      allow(Rabbit.config).to receive(:publish_logger) { publish_logger }
+
+      allow(channel).to receive(:wait_for_confirms).and_return(true)
+      allow(channel).to receive(:confirm_select).and_return(true)
+
+      allow(Rabbit.config).to receive(:connection_reset_max_retries).and_return(max_retries)
+      allow(Rabbit.config).to receive(:connection_reset_timeout).and_return(timeout)
+    end
+
+    after do
+      Thread.current[:bunny_channels] = nil
+      Rabbit::Publishing.instance_variable_set(:@pool, nil)
+      Rabbit::Publishing.instance_variable_set(:@logger, nil)
+    end
+
+    it "retries publishing when an exception from reset_exceptions occurs" do
+      attempt = 0
+
+      allow(channel).to receive(:basic_publish) do |*args|
+        attempt += 1
+        raise Bunny::ConnectionClosedError.new(args.to_json) if attempt <= max_retries
+      end
+
+      expect(channel).to receive(:basic_publish).exactly(max_retries + 1).times
+      expect(publish_logger).to receive(:debug).with(<<~MSG.strip).once
+        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
+        confirm: {"hello":"world"}
+      MSG
+
+      expect { described_class.publish(message_options) }.not_to raise_error
+    end
+
+    it "raises the last exception after max retries" do
+      allow(channel).to receive(:basic_publish).and_raise(Bunny::ConnectionClosedError.new(""))
+
+      expect { described_class.publish(message_options) }
+        .to raise_error(Bunny::ConnectionClosedError)
+    end
+  end
+
   context "realtime" do
     let(:realtime) { true }
     let(:expect_to_use_job) { false }
