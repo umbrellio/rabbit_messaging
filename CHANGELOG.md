@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [1.3.1] - 2025-03-10
+## [1.4.0] - 2025-03-10
 ### Added
 - Introduced new configuration attributes for connection reset handling:
   - `connection_reset_max_retries`
