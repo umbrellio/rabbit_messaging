@@ -84,7 +84,7 @@ RSpec.describe Rabbit do
     end
   end
 
-  context "retries on reset_exceptions" do
+  context "retries on connection_reset_exceptions" do
     let(:realtime) { true }
     let(:max_retries) { 2 }
     let(:timeout) { 0.1 }
@@ -113,7 +113,7 @@ RSpec.describe Rabbit do
       Rabbit::Publishing.instance_variable_set(:@logger, nil)
     end
 
-    it "retries publishing when an exception from reset_exceptions occurs" do
+    it "retries publishing when an exception from connection_reset_exceptions occurs" do
       attempt = 0
 
       allow(channel).to receive(:basic_publish) do |*args|

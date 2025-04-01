@@ -23,11 +23,11 @@ module Rabbit
 
           log msg
         end
-      rescue *Rabbit.config.reset_exceptions => error
+      rescue *Rabbit.config.connection_reset_exceptions => error
         attempt += 1
         if attempt <= Rabbit.config.connection_reset_max_retries
           sleep(Rabbit.config.connection_reset_timeout)
-          @pool = nil
+          reinitialize_channels_pool
           retry
         else
           raise error
@@ -67,6 +67,10 @@ module Rabbit
       ]
 
       @logger.debug "#{metadata.join ' / '}: #{JSON.dump(message.data)}"
+    end
+
+    def reinitialize_channels_pool
+      @pool = nil
     end
   end
 end

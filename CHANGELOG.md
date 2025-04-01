@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 - Introduced new configuration attributes for connection reset handling:
   - `connection_reset_max_retries`
   - `connection_reset_timeout`
-  - `reset_exceptions`
+  - `connection_reset_exceptions`
 ### Changed
 - Improved handling of `Bunny::ConnectionClosedError`:
   - Added automatic reconnection with retries.

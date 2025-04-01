@@ -127,6 +127,30 @@ require "rabbit_messaging"
   - `backoff_handler_max_retries` (`Integer`)
 
     Number of retries that `ExponentialBackoffHandler` will use before sending job to the error queue. 5 by default.
+
+  - `connection_reset_exceptions` (`Array`)
+
+    Exceptions for reset connection. Default:  [`Bunny::ConnectionClosedError`].
+
+  ```ruby
+    config.connection_reset_exceptions << MyInterestingException
+  ```
+
+  - `connection_reset_max_retries` (`Integer`)
+
+    Maximum number of reconnection attempts after a connection loss. Default: 10.
+  
+    ```ruby
+      config.connection_reset_max_retries = 20
+    ```
+
+  - `connection_reset_timeout` (`Float`)
+
+    The timeout duration before attempting to reset the connection. Default: 0.2 sec.
+
+    ```ruby
+      config.connection_reset_timeout = 0.2
+    ```
 ---
 
 ### Client

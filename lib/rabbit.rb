@@ -30,9 +30,9 @@ module Rabbit
     attribute :skip_publishing_in, default: %i[test development]
     attribute :use_backoff_handler, :Boolean, default: false
     attribute :backoff_handler_max_retries, Integer, default: 6
-    attribute :connection_reset_max_retries, Integer, default: 5
+    attribute :connection_reset_max_retries, Integer, default: 10
     attribute :connection_reset_timeout, Float, default: 0.2
-    attribute :reset_exceptions, Array, default: [Bunny::ConnectionClosedError]
+    attribute :connection_reset_exceptions, Array, default: [Bunny::ConnectionClosedError]
 
     attribute :receive_logger, default: lambda {
       Logger.new(Rabbit.root.join("log", "incoming_rabbit_messages.log"))
