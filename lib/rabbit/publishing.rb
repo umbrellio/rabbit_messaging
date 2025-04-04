@@ -70,7 +70,7 @@ module Rabbit
     end
 
     def reinitialize_channels_pool
-      @pool = nil
+      MUTEX.synchronize { @pool = ChannelsPool.new(create_client) }
     end
   end
 end
