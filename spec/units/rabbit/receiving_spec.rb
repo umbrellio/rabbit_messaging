@@ -213,6 +213,34 @@ describe "Receiving messages" do
             include_examples "check job queue and some handler"
           end
         end
+
+        context "retries on connection_reset_exceptions" do
+          let(:max_retries) { 2 }
+
+          before do
+            allow(worker).to receive(:reinitialize_connection)
+          end
+
+          it "performs job successfully" do
+            attempt = 0
+            allow(worker).to receive(:receive_message) do |message, delivery_info, arguments|
+              attempt += 1
+              raise Bunny::ConnectionClosedError.new("") if attempt <= max_retries
+
+              Rabbit::Receiving::Receive.new(
+                message: message.dup.force_encoding("UTF-8"),
+                delivery_info: delivery_info,
+                arguments: arguments,
+              ).call
+            end
+            expect(Rabbit.config.exception_notifier).not_to receive(:call)
+
+            expect_job_queue_to_be_set
+            expect_some_handler_to_be_called
+
+            run_receive
+          end
+        end
       end
 
       context "handler is not found" do

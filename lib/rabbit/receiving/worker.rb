@@ -9,9 +9,21 @@ class Rabbit::Receiving::Worker
   include Sneakers::Worker
 
   def work_with_params(message, delivery_info, arguments)
-    # args and info have custom rabbit classes, have to convert them to hash
-    receive_message(message, delivery_info.to_h, arguments.to_h)
-    ack!
+    attempt = 0
+    begin
+      # args and info have custom rabbit classes, have to convert them to hash
+      receive_message(message, delivery_info.to_h, arguments.to_h)
+      ack!
+    rescue *Rabbit.config.connection_reset_exceptions => error
+      attempt += 1
+      if attempt <= Rabbit.config.connection_reset_max_retries
+        sleep(Rabbit.config.connection_reset_timeout)
+        reinitialize_connection
+        retry
+      else
+        handle_error!(error)
+      end
+    end
   rescue => error
     handle_error!(error)
   end
@@ -30,5 +42,11 @@ class Rabbit::Receiving::Worker
     # wait to prevent queue overflow
     sleep 1
     requeue!
+  end
+
+  def reinitialize_connection
+    stop
+    @queue.instance_variable_set(:@banny, nil)
+    run
   end
 end

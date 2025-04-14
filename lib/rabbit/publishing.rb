@@ -10,23 +10,35 @@ module Rabbit
 
     MUTEX = Mutex.new
 
-    def publish(msg)
+    def publish(msg) # rubocop:disable Metrics/MethodLength
       return if Rabbit.config.skip_publish?
 
-      pool.with_channel msg.confirm_select? do |ch|
-        ch.basic_publish *msg.basic_publish_args
+      attempt = 0
+      begin
+        pool.with_channel msg.confirm_select? do |ch|
+          ch.basic_publish *msg.basic_publish_args
 
-        raise MessageNotDelivered, "RabbitMQ message not delivered: #{msg}" \
-          if msg.confirm_select? && !ch.wait_for_confirms
+          raise MessageNotDelivered, "RabbitMQ message not delivered: #{msg}" \
+            if msg.confirm_select? && !ch.wait_for_confirms
 
-        log msg
+          log msg
+        end
+      rescue *Rabbit.config.connection_reset_exceptions => error
+        attempt += 1
+        if attempt <= Rabbit.config.connection_reset_max_retries
+          sleep(Rabbit.config.connection_reset_timeout)
+          reinitialize_channels_pool
+          retry
+        else
+          raise error
+        end
+      rescue Timeout::Error
+        raise MessageNotDelivered, <<~MESSAGE
+          Timeout while sending message #{msg}. Possible reasons:
+            - #{msg.real_exchange_name} exchange is not found
+            - RabbitMQ is extremely high loaded
+        MESSAGE
       end
-    rescue Timeout::Error
-      raise MessageNotDelivered, <<~MESSAGE
-        Timeout while sending message #{msg}. Possible reasons:
-          - #{msg.real_exchange_name} exchange is not found
-          - RabbitMQ is extremely high loaded
-      MESSAGE
     end
 
     def pool
@@ -55,6 +67,10 @@ module Rabbit
       ]
 
       @logger.debug "#{metadata.join ' / '}: #{JSON.dump(message.data)}"
+    end
+
+    def reinitialize_channels_pool
+      MUTEX.synchronize { @pool = ChannelsPool.new(create_client) }
     end
   end
 end
