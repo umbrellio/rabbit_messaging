@@ -71,8 +71,8 @@ module Rabbit
 
       message_parts.each_with_index do |message_part, index|
         if message_parts.size == 1
-          msg = "#{message_part}"
-        elsif index == 0
+          msg = message_part
+        elsif index.zero?
           msg = "#{message_part}..."
         elsif index == message_parts.size - 1
           msg = "...#{message_part}"
