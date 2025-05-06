@@ -23,9 +23,19 @@ class Rabbit::Receiving::Receive
   def log!
     message_parts = message.scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
 
-    message_parts.each do |message_part|
+    message_parts.each_with_index do |message_part, index|
+      if message_parts.size == 1
+        msg = "#{message_part}"
+      elsif index == 0
+        msg = "#{message_part}..."
+      elsif index == message_parts.size - 1
+        msg = "...#{message_part}"
+      else
+        msg = "...#{message_part}..."
+      end
+
       Rabbit.config.receive_logger.debug(
-        [message_part, delivery_info, arguments].join(" / "),
+        [msg, delivery_info, arguments].join(" / "),
       )
     end
   end

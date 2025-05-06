@@ -69,8 +69,18 @@ module Rabbit
       message_parts = JSON.dump(message.data)
                           .scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
 
-      message_parts.each do |message_part|
-        @logger.debug "#{metadata.join ' / '}: #{message_part}"
+      message_parts.each_with_index do |message_part, index|
+        if message_parts.size == 1
+          msg = "#{message_part}"
+        elsif index == 0
+          msg = "#{message_part}..."
+        elsif index == message_parts.size - 1
+          msg = "...#{message_part}"
+        else
+          msg = "...#{message_part}..."
+        end
+
+        @logger.debug "#{metadata.join ' / '}: #{msg}"
       end
     end
 

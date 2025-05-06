@@ -73,11 +73,11 @@ RSpec.describe Rabbit do
 
       expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
         test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
-        confirm: {"hello":"
+        confirm: {"hello":"...
       MSG
       expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
         test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
-        confirm: world"}
+        confirm: ...world"}
       MSG
       described_class.publish(message_options)
     end
