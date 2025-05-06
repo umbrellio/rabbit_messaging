@@ -66,7 +66,12 @@ module Rabbit
         message.event, message.confirm_select? ? "confirm" : "no-confirm"
       ]
 
-      @logger.debug "#{metadata.join ' / '}: #{JSON.dump(message.data)}"
+      message_parts = JSON.dump(message.data)
+                          .scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
+
+      message_parts.each do |message_part|
+        @logger.debug "#{metadata.join ' / '}: #{message_part}"
+      end
     end
 
     def reinitialize_channels_pool

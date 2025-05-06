@@ -21,9 +21,13 @@ class Rabbit::Receiving::Receive
   end
 
   def log!
-    Rabbit.config.receive_logger.debug(
-      [message, delivery_info, arguments].join(" / "),
-    )
+    message_parts = message.scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
+
+    message_parts.each do |message_part|
+      Rabbit.config.receive_logger.debug(
+        [message_part, delivery_info, arguments].join(" / "),
+      )
+    end
   end
 
   def process_message
