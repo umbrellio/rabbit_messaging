@@ -30,7 +30,7 @@ RSpec.describe Rabbit do
       allow(channel).to receive(:open?).and_return(true)
 
       allow(Rabbit.config).to receive(:publish_logger) { publish_logger }
-      allow(Rabbit.config).to receive(:logger_message_size_limit) { 10 }
+      allow(Rabbit.config).to receive(:logger_message_size_limit).and_return(10)
 
       expect(channel).to receive(:confirm_select).once
       allow(channel).to receive(:wait_for_confirms).and_return(true)
