@@ -70,17 +70,8 @@ module Rabbit
                           .scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
 
       message_parts.each_with_index do |message_part, index|
-        if message_parts.size == 1
-          msg = message_part
-        elsif index.zero?
-          msg = "#{message_part}..."
-        elsif index == message_parts.size - 1
-          msg = "...#{message_part}"
-        else
-          msg = "...#{message_part}..."
-        end
-
-        @logger.debug "#{metadata.join ' / '}: #{msg}"
+        message = Rabbit::Helper.generate_message(message_part, message_parts.size, index)
+        @logger.debug "#{metadata.join ' / '}: #{message}"
       end
     end
 
