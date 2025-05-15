@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Rabbit
-  class Helper
+  module Helper
     def self.generate_message(message_part, parts, index)
       if parts == 1
         message_part
