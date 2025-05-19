@@ -151,6 +151,14 @@ require "rabbit_messaging"
     ```ruby
       config.connection_reset_timeout = 0.2
     ```
+
+  - `logger_message_size_limit` (`Integer`)
+
+    Maximum logger message size. Split message to parts if message is more than limit. Default: 9500.
+
+    ```ruby
+      config.logger_message_size_limit = 9500
+    ```
 ---
 
 ### Client

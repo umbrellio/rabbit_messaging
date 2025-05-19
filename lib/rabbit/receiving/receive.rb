@@ -5,6 +5,7 @@ require "tainbox"
 require "rabbit"
 require "rabbit/receiving/queue"
 require "rabbit/receiving/job"
+require "rabbit/helper"
 
 class Rabbit::Receiving::Receive
   include Tainbox
@@ -21,9 +22,15 @@ class Rabbit::Receiving::Receive
   end
 
   def log!
-    Rabbit.config.receive_logger.debug(
-      [message, delivery_info, arguments].join(" / "),
-    )
+    message_parts = message.scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
+
+    message_parts.each_with_index do |message_part, index|
+      message = Rabbit::Helper.generate_message(message_part, message_parts.size, index)
+
+      Rabbit.config.receive_logger.debug(
+        [message, delivery_info, arguments].join(" / "),
+      )
+    end
   end
 
   def process_message

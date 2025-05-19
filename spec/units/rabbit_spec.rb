@@ -30,6 +30,7 @@ RSpec.describe Rabbit do
       allow(channel).to receive(:open?).and_return(true)
 
       allow(Rabbit.config).to receive(:publish_logger) { publish_logger }
+      allow(Rabbit.config).to receive(:logger_message_size_limit).and_return(10)
 
       expect(channel).to receive(:confirm_select).once
       allow(channel).to receive(:wait_for_confirms).and_return(true)
@@ -70,9 +71,13 @@ RSpec.describe Rabbit do
         expect(Rabbit::Publishing::Job).not_to receive(:perform_later)
       end
 
-      expect(publish_logger).to receive(:debug).with(<<~MSG.strip).once
+      expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
         test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
-        confirm: {"hello":"world"}
+        confirm: {"hello":"...
+      MSG
+      expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
+        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
+        confirm: ...world"}
       MSG
       described_class.publish(message_options)
     end

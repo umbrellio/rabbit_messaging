@@ -33,6 +33,7 @@ module Rabbit
     attribute :connection_reset_max_retries, Integer, default: 10
     attribute :connection_reset_timeout, Float, default: 0.2
     attribute :connection_reset_exceptions, Array, default: [Bunny::ConnectionClosedError]
+    attribute :logger_message_size_limit, Integer, default: 9_500
 
     attribute :receive_logger, default: lambda {
       Logger.new(Rabbit.root.join("log", "incoming_rabbit_messages.log"))
