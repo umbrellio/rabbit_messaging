@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2025-05-19
+### Added
+- Added ability to split log message into parts
+- Optional `logger_message_size_limit` config for message size limit
+
 ## [1.4.0] - 2025-03-10
 ### Added
 - Introduced new configuration attributes for connection reset handling:
