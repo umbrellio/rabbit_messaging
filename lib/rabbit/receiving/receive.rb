@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-require "tainbox"
-
 require "rabbit"
 require "rabbit/receiving/queue"
 require "rabbit/receiving/job"
 require "rabbit/helper"
 
 class Rabbit::Receiving::Receive
-  include Tainbox
+  attr_accessor :message, :delivery_info, :arguments
 
-  attribute :message
-  attribute :delivery_info
-  attribute :arguments
+  def initialize(message: nil, delivery_info: nil, arguments: nil)
+    self.message = message
+    self.delivery_info = delivery_info
+    self.arguments = arguments
+  end
 
   def call
     log!

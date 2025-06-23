@@ -29,3 +29,6 @@ Style/HashConversion:
 
 RSpec/ExampleLength:
   Max: 50
+
+Metrics/ParameterLists:
+  Max: 40

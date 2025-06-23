@@ -208,8 +208,6 @@ to teardown and setup external connections between daemon restarts, for example 
     Rabbit.config.handler_resolver_callable = -> (group_id, event) { "recivers/#{group_id}/#{event}".camelize.constantize }
     ```
 
-  They use powerful `Tainbox` api to handle message data. Project_id also passed to them.
-
   If you wish so, you can override `initialize(message)`, where message is an object
   with simple api (@see lib/rabbit/receiving/message.rb)
 
