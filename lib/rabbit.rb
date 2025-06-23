@@ -29,10 +29,7 @@ module Rabbit
                   :connection_reset_max_retries,
                   :connection_reset_timeout,
                   :connection_reset_exceptions,
-                  :logger_message_size_limit,
-                  :receive_logger,
-                  :publish_logger,
-                  :malformed_logger
+                  :logger_message_size_limit
 
     def initialize( # rubocop:disable Metrics/MethodLength
       group_id: nil,
@@ -76,9 +73,9 @@ module Rabbit
       self.connection_reset_exceptions = connection_reset_exceptions
       self.logger_message_size_limit = logger_message_size_limit
 
-      self.receive_logger = receive_logger || default_receive_logger
-      self.publish_logger = publish_logger || default_publish_logger
-      self.malformed_logger = malformed_logger || default_malformed_logger
+      @receive_logger = receive_logger
+      @publish_logger = publish_logger
+      @malformed_logger = malformed_logger
     end
 
     def validate!
@@ -101,6 +98,18 @@ module Rabbit
 
     def read_queue
       [app_name, queue_suffix].reject { |x| x.nil? || x.empty? }.join(".")
+    end
+
+    def receive_logger
+      @receive_logger || default_receive_logger
+    end
+
+    def publish_logger
+      @publish_logger || default_publish_logger
+    end
+
+    def malformed_logger
+      @malformed_logger || default_malformed_logger
     end
 
     private
