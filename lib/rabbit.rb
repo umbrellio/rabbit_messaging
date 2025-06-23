@@ -31,6 +31,8 @@ module Rabbit
                   :connection_reset_exceptions,
                   :logger_message_size_limit
 
+    attr_writer :receive_logger, :publish_logger, :malformed_logger
+
     def initialize( # rubocop:disable Metrics/MethodLength
       group_id: nil,
       project_id: nil,
@@ -58,7 +60,7 @@ module Rabbit
       self.project_id = project_id
       self.queue_suffix = queue_suffix
       self.hooks = hooks
-      self.environment = environment
+      self.environment = environment.to_sym
       self.queue_name_conversion = queue_name_conversion
       self.receiving_job_class_callable = receiving_job_class_callable
       self.handler_resolver_callable = handler_resolver_callable
