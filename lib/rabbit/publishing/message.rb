@@ -10,14 +10,14 @@ module Rabbit::Publishing
     alias_method :realtime?, :realtime
 
     def initialize(attributes = {})
-      @routing_key     = attributes[:routing_key]
-      @event           = attributes[:event]&.to_s
-      @data            = attributes.fetch(:data, {})
-      @exchange_name   = Array(attributes.fetch(:exchange_name, []))
-      @confirm_select  = attributes.fetch(:confirm_select, true)
-      @realtime        = attributes.fetch(:realtime, false)
-      @headers         = attributes.fetch(:headers, {})
-      @message_id      = attributes[:message_id]
+      self.routing_key     = attributes[:routing_key]
+      self.event           = attributes[:event]&.to_s
+      self.data            = attributes.fetch(:data, {})
+      self.exchange_name   = Array(attributes.fetch(:exchange_name, []))
+      self.confirm_select  = attributes.fetch(:confirm_select, true)
+      self.realtime        = attributes.fetch(:realtime, false)
+      self.headers         = attributes.fetch(:headers, {})
+      self.message_id      = attributes[:message_id]
     end
 
     def to_hash

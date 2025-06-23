@@ -30,13 +30,13 @@ module Rabbit::Receiving
       arguments: nil,
       original_message: nil
     )
-      @group_id = group_id
-      @project_id = project_id
-      @message_id = message_id
-      @event = event
+      self.group_id = group_id
+      self.project_id = project_id
+      self.message_id = message_id
+      self.event = event
       self.data = data unless data.nil?
-      @arguments = arguments
-      @original_message = original_message
+      self.arguments = arguments
+      self.original_message = original_message
     end
 
     def data=(value)

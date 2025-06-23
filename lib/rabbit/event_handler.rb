@@ -32,9 +32,9 @@ class Rabbit::EventHandler
   def initialize(message)
     assign_attributes(message.data)
 
-    @data = message.data
-    @project_id = message.project_id
-    @message_info = message.arguments
+    self.data = message.data
+    self.project_id = message.project_id
+    self.message_info = message.arguments
   end
 
   def assign_attributes(attrs = {})

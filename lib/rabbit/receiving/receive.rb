@@ -9,9 +9,9 @@ class Rabbit::Receiving::Receive
   attr_accessor :message, :delivery_info, :arguments
 
   def initialize(message: nil, delivery_info: nil, arguments: nil)
-    @message = message
-    @delivery_info = delivery_info
-    @arguments = arguments
+    self.message = message
+    self.delivery_info = delivery_info
+    self.arguments = arguments
   end
 
   def call

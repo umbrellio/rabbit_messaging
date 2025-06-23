@@ -57,28 +57,28 @@ module Rabbit
       publish_logger: nil,
       malformed_logger: nil
     )
-      @group_id = group_id
-      @project_id = project_id
-      @queue_suffix = queue_suffix
-      @hooks = hooks
-      @environment = environment
-      @queue_name_conversion = queue_name_conversion
-      @receiving_job_class_callable = receiving_job_class_callable
-      @handler_resolver_callable = handler_resolver_callable
-      @exception_notifier = exception_notifier
-      @before_receiving_hooks = before_receiving_hooks
-      @after_receiving_hooks = after_receiving_hooks
-      @skip_publishing_in = skip_publishing_in
-      @use_backoff_handler = use_backoff_handler
-      @backoff_handler_max_retries = backoff_handler_max_retries
-      @connection_reset_max_retries = connection_reset_max_retries
-      @connection_reset_timeout = connection_reset_timeout
-      @connection_reset_exceptions = connection_reset_exceptions
-      @logger_message_size_limit = logger_message_size_limit
+      self.group_id = group_id
+      self.project_id = project_id
+      self.queue_suffix = queue_suffix
+      self.hooks = hooks
+      self.environment = environment
+      self.queue_name_conversion = queue_name_conversion
+      self.receiving_job_class_callable = receiving_job_class_callable
+      self.handler_resolver_callable = handler_resolver_callable
+      self.exception_notifier = exception_notifier
+      self.before_receiving_hooks = before_receiving_hooks
+      self.after_receiving_hooks = after_receiving_hooks
+      self.skip_publishing_in = skip_publishing_in
+      self.use_backoff_handler = use_backoff_handler
+      self.backoff_handler_max_retries = backoff_handler_max_retries
+      self.connection_reset_max_retries = connection_reset_max_retries
+      self.connection_reset_timeout = connection_reset_timeout
+      self.connection_reset_exceptions = connection_reset_exceptions
+      self.logger_message_size_limit = logger_message_size_limit
 
-      @receive_logger = receive_logger || default_receive_logger
-      @publish_logger = publish_logger || default_publish_logger
-      @malformed_logger = malformed_logger || default_malformed_logger
+      self.receive_logger = receive_logger || default_receive_logger
+      self.publish_logger = publish_logger || default_publish_logger
+      self.malformed_logger = malformed_logger || default_malformed_logger
     end
 
     def validate!
