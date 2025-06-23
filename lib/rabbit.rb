@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require "tainbox"
-
 require "rabbit/version"
 require "rabbit/daemon"
 require "rabbit/publishing"
@@ -14,38 +12,74 @@ module Rabbit
   MessageNotDelivered = Class.new(StandardError)
 
   class Config
-    include Tainbox
+    attr_accessor :group_id,
+                  :project_id,
+                  :queue_suffix,
+                  :hooks,
+                  :environment,
+                  :queue_name_conversion,
+                  :receiving_job_class_callable,
+                  :handler_resolver_callable,
+                  :exception_notifier,
+                  :before_receiving_hooks,
+                  :after_receiving_hooks,
+                  :skip_publishing_in,
+                  :use_backoff_handler,
+                  :backoff_handler_max_retries,
+                  :connection_reset_max_retries,
+                  :connection_reset_timeout,
+                  :connection_reset_exceptions,
+                  :logger_message_size_limit,
+                  :receive_logger,
+                  :publish_logger,
+                  :malformed_logger
 
-    attribute :group_id, :Symbol
-    attribute :project_id, :Symbol
-    attribute :queue_suffix, :String
-    attribute :hooks, default: {}
-    attribute :environment, :Symbol, default: :production
-    attribute :queue_name_conversion
-    attribute :receiving_job_class_callable
-    attribute :handler_resolver_callable
-    attribute :exception_notifier
-    attribute :before_receiving_hooks, default: []
-    attribute :after_receiving_hooks, default: []
-    attribute :skip_publishing_in, default: %i[test development]
-    attribute :use_backoff_handler, :Boolean, default: false
-    attribute :backoff_handler_max_retries, Integer, default: 6
-    attribute :connection_reset_max_retries, Integer, default: 10
-    attribute :connection_reset_timeout, Float, default: 0.2
-    attribute :connection_reset_exceptions, Array, default: [Bunny::ConnectionClosedError]
-    attribute :logger_message_size_limit, Integer, default: 9_500
+    def initialize( # rubocop:disable Metrics/MethodLength
+      group_id: nil,
+      project_id: nil,
+      queue_suffix: nil,
+      hooks: {},
+      environment: :production,
+      queue_name_conversion: nil,
+      receiving_job_class_callable: nil,
+      handler_resolver_callable: nil,
+      exception_notifier: nil,
+      before_receiving_hooks: [],
+      after_receiving_hooks: [],
+      skip_publishing_in: %i[test development],
+      use_backoff_handler: false,
+      backoff_handler_max_retries: 6,
+      connection_reset_max_retries: 10,
+      connection_reset_timeout: 0.2,
+      connection_reset_exceptions: [Bunny::ConnectionClosedError],
+      logger_message_size_limit: 9_500,
+      receive_logger: nil,
+      publish_logger: nil,
+      malformed_logger: nil
+    )
+      @group_id = group_id
+      @project_id = project_id
+      @queue_suffix = queue_suffix
+      @hooks = hooks
+      @environment = environment
+      @queue_name_conversion = queue_name_conversion
+      @receiving_job_class_callable = receiving_job_class_callable
+      @handler_resolver_callable = handler_resolver_callable
+      @exception_notifier = exception_notifier
+      @before_receiving_hooks = before_receiving_hooks
+      @after_receiving_hooks = after_receiving_hooks
+      @skip_publishing_in = skip_publishing_in
+      @use_backoff_handler = use_backoff_handler
+      @backoff_handler_max_retries = backoff_handler_max_retries
+      @connection_reset_max_retries = connection_reset_max_retries
+      @connection_reset_timeout = connection_reset_timeout
+      @connection_reset_exceptions = connection_reset_exceptions
+      @logger_message_size_limit = logger_message_size_limit
 
-    attribute :receive_logger, default: lambda {
-      Logger.new(Rabbit.root.join("log", "incoming_rabbit_messages.log"))
-    }
-
-    attribute :publish_logger, default: lambda {
-      Logger.new(Rabbit.root.join("log", "rabbit.log"))
-    }
-
-    attribute :malformed_logger, default: lambda {
-      Logger.new(Rabbit.root.join("log", "malformed_messages.log"))
-    }
+      @receive_logger = receive_logger || default_receive_logger
+      @publish_logger = publish_logger || default_publish_logger
+      @malformed_logger = malformed_logger || default_malformed_logger
+    end
 
     def validate!
       raise InvalidConfig, "missing project_id" unless project_id
@@ -67,6 +101,20 @@ module Rabbit
 
     def read_queue
       [app_name, queue_suffix].reject { |x| x.nil? || x.empty? }.join(".")
+    end
+
+    private
+
+    def default_receive_logger
+      Logger.new(Rabbit.root.join("log", "incoming_rabbit_messages.log"))
+    end
+
+    def default_publish_logger
+      Logger.new(Rabbit.root.join("log", "rabbit.log"))
+    end
+
+    def default_malformed_logger
+      Logger.new(Rabbit.root.join("log", "malformed_messages.log"))
     end
   end
 

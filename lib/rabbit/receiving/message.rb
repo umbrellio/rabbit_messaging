@@ -1,20 +1,12 @@
 # frozen_string_literal: true
 
-require "tainbox"
-
 require "rabbit/receiving/malformed_message"
 
 module Rabbit::Receiving
   class Message
-    include Tainbox
-
-    attribute :group_id
-    attribute :project_id
-    attribute :message_id
-    attribute :event
-    attribute :data
-    attribute :arguments
-    attribute :original_message
+    attr_accessor :group_id, :project_id, :message_id,
+                  :event, :arguments, :original_message
+    attr_reader :data
 
     def self.build(message, arguments)
       group_id, project_id = arguments.fetch(:app_id).split(".")
@@ -29,15 +21,46 @@ module Rabbit::Receiving
       )
     end
 
+    def initialize(
+      group_id: nil,
+      project_id: nil,
+      message_id: nil,
+      event: nil,
+      data: nil,
+      arguments: nil,
+      original_message: nil
+    )
+      @group_id = group_id
+      @project_id = project_id
+      @message_id = message_id
+      @event = event
+      self.data = data unless data.nil?
+      @arguments = arguments
+      @original_message = original_message
+    end
+
     def data=(value)
       self.original_message = value
-      super(JSON.parse(value).deep_symbolize_keys)
+      parsed = JSON.parse(value).deep_symbolize_keys
+      @data = parsed
     rescue JSON::ParserError => error
       mark_as_malformed!("JSON::ParserError: #{error.message}")
     end
 
     def mark_as_malformed!(errors = "Error not specified")
       MalformedMessage.raise!(self, errors, caller(1))
+    end
+
+    def attributes
+      {
+        group_id: group_id,
+        project_id: project_id,
+        message_id: message_id,
+        event: event,
+        data: data,
+        arguments: arguments,
+        original_message: original_message,
+      }
     end
   end
 end

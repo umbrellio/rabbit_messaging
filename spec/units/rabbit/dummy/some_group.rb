@@ -9,7 +9,7 @@ module Rabbit::Handler
     class SomeSuccessfulEvent < Rabbit::EventHandler
       queue_as { |message, arguments| "#{message.data[:hello]}_#{arguments[:type]}" }
 
-      attribute :hello
+      attr_accessor :hello
 
       def call; end
     end
