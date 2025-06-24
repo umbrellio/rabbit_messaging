@@ -16,7 +16,6 @@ module Rabbit
                   :project_id,
                   :queue_suffix,
                   :hooks,
-                  :environment,
                   :queue_name_conversion,
                   :receiving_job_class_callable,
                   :handler_resolver_callable,
@@ -31,6 +30,7 @@ module Rabbit
                   :connection_reset_exceptions,
                   :logger_message_size_limit
 
+    attr_reader :environment
     attr_writer :receive_logger, :publish_logger, :malformed_logger
 
     def initialize( # rubocop:disable Metrics/MethodLength
@@ -112,6 +112,10 @@ module Rabbit
 
     def malformed_logger
       @malformed_logger || default_malformed_logger
+    end
+
+    def environment=(value)
+      @environment = value.to_sym
     end
 
     private
