@@ -18,6 +18,8 @@ module Rabbit
                   :hooks,
                   :queue_name_conversion,
                   :receiving_job_class_callable,
+                  :publishing_job_class_callable,
+                  :default_publishing_job_queue,
                   :handler_resolver_callable,
                   :exception_notifier,
                   :before_receiving_hooks,
@@ -41,6 +43,8 @@ module Rabbit
       environment: :production,
       queue_name_conversion: nil,
       receiving_job_class_callable: nil,
+      publishing_job_class_callable: nil,
+      default_publishing_job_queue: :default,
       handler_resolver_callable: nil,
       exception_notifier: nil,
       before_receiving_hooks: [],
@@ -63,6 +67,8 @@ module Rabbit
       self.environment = environment.to_sym
       self.queue_name_conversion = queue_name_conversion
       self.receiving_job_class_callable = receiving_job_class_callable
+      self.publishing_job_class_callable = publishing_job_class_callable
+      self.default_publishing_job_queue = default_publishing_job_queue
       self.handler_resolver_callable = handler_resolver_callable
       self.exception_notifier = exception_notifier
       self.before_receiving_hooks = before_receiving_hooks
@@ -163,13 +169,15 @@ module Rabbit
     config.validate!
   end
 
-  def publish(message_options)
+  def publish(message_options, custom_queue_name: nil)
     message = Publishing::Message.new(message_options)
+    publish_job_callable = config.publishing_job_class_callable || Publishing::Job
+    queue_name = custom_queue_name || default_queue_name
 
     if message.realtime?
       Publishing.publish(message)
     else
-      Publishing::Job.set(queue: default_queue_name).perform_later(message.to_hash)
+      publish_job_callable.set(queue: queue_name).perform_later(message.to_hash)
     end
   end
 
@@ -179,6 +187,6 @@ module Rabbit
   end
 
   def default_queue_name(ignore_conversion: false)
-    queue_name(:default, ignore_conversion: ignore_conversion)
+    queue_name(config.default_publishing_job_queue, ignore_conversion: ignore_conversion)
   end
 end
