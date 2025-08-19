@@ -97,6 +97,14 @@ require "rabbit_messaging"
     }
     ```
 
+  - `publishing_job_class_callable` (`Proc`)
+
+    Custom job class (e.g. ActiveJob or Sidekiq::Job) to work with published messages.
+
+  - `default_publishing_job_queue` (`String` or `Symbol`)
+
+    The name of the queue that will be used by default for publishing jobs. `default` by default.
+
   - `before_receiving_hooks, after_receiving_hooks` (`Array of Procs`)
 
     Before and after hooks with message processing in the middle. Where `before_receiving_hooks` and `after_receiving_hooks` are empty arrays by default.
@@ -139,7 +147,7 @@ require "rabbit_messaging"
   - `connection_reset_max_retries` (`Integer`)
 
     Maximum number of reconnection attempts after a connection loss. Default: 10.
-  
+
     ```ruby
       config.connection_reset_max_retries = 20
     ```
@@ -165,13 +173,16 @@ require "rabbit_messaging"
 
 ```ruby
 Rabbit.publish(
-  routing_key: :support,
-  event: :ping,
-  data: { foo: :bar }, # default is {}
-  exchange_name: 'fanout', # default is fine too
-  confirm_select: true, # setting this to false grants you great speed up and absolutelly no guarantees
-  headers: { "foo" => "bar" }, # custom arguments for routing, default is {}
-  message_id: "asdadsadsad", # A unique identifier such as a UUID that your application can use to identify the message.
+  {
+    routing_key: :support,
+    event: :ping,
+    data: { foo: :bar }, # default is {}
+    exchange_name: 'fanout', # default is fine too
+    confirm_select: true, # setting this to false grants you great speed up and absolutelly no guarantees
+    headers: { "foo" => "bar" }, # custom arguments for routing, default is {}
+    message_id: "asdadsadsad", # A unique identifier such as a UUID that your application can use to identify the message.
+  },
+  custom_queue_name: :my_custom_queue, # The name of the queue for publishing jobs. Overrides the default queue.
 )
 ```
 
