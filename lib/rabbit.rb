@@ -169,7 +169,10 @@ module Rabbit
     config.validate!
   end
 
-  def publish(custom_queue_name: nil, **message_options)
+  def publish(message_options, custom_queue_name: nil)
+    # Extract custom_queue_name from message_options for backward compatibility
+    custom_queue_name ||= message_options[:custom_queue_name]
+
     message = Publishing::Message.new(message_options)
     publish_job_callable = config.publishing_job_class_callable || Publishing::Job
     queue_name = custom_queue_name || default_queue_name
