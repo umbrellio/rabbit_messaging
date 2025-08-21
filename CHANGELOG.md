@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## [1.6.0] - 2025-08-19
+## [1.6.4] - 2025-08-19
 ### Added
 - Ability to specify a custom job class for publishing via `publishing_job_class_callable` config.
 - Ability to specify a default queue for publishing jobs via `default_publishing_job_queue` config.
