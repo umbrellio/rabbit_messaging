@@ -190,7 +190,8 @@ module Rabbit
       headers: headers,
       message_id: message_id,
     )
-    publish_job_callable = config.publishing_job_class_callable || Publishing::Job
+    job_class = config.publishing_job_class_callable
+    publish_job_callable = job_class.is_a?(Proc) ? job_class.call : (job_class || Publishing::Job)
     queue_name = custom_queue_name || default_queue_name
 
     if message.realtime?
