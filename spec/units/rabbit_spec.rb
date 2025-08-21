@@ -80,7 +80,7 @@ RSpec.describe Rabbit do
         test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
         confirm: ...world"}
       MSG
-      described_class.publish(message_options, **additional_params)
+      described_class.publish(**message_options, **additional_params)
     end
 
     after do
@@ -134,13 +134,13 @@ RSpec.describe Rabbit do
         confirm: {"hello":"world"}
       MSG
 
-      expect { described_class.publish(message_options) }.not_to raise_error
+      expect { described_class.publish(**message_options) }.not_to raise_error
     end
 
     it "raises the last exception after max retries" do
       allow(channel).to receive(:basic_publish).and_raise(Bunny::ConnectionClosedError.new(""))
 
-      expect { described_class.publish(message_options) }
+      expect { described_class.publish(**message_options) }
         .to raise_error(Bunny::ConnectionClosedError)
     end
   end

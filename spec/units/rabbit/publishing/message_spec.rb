@@ -2,7 +2,7 @@
 
 describe Rabbit::Publishing::Message do
   describe "basic_publish_args" do
-    subject(:message) { described_class.new(attributes) }
+    subject(:message) { described_class.new(**attributes) }
 
     context "rounting key not specified" do
       let(:attributes) { Hash[event: :ping] }

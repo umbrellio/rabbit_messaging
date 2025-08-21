@@ -8,7 +8,7 @@ GIT
 PATH
   remote: .
   specs:
-    rabbit_messaging (1.6.4)
+    rabbit_messaging (1.7.0)
       bunny (~> 2.0)
       kicks
 
