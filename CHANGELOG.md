@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2025-08-19
+### Added
+- Ability to specify a custom job class for publishing via `publishing_job_class_callable` config.
+- Ability to specify a default queue for publishing jobs via `default_publishing_job_queue` config.
+- Ability to specify a custom queue per publish call via `custom_queue_name` argument.
+
 ## [1.5.0] - 2025-05-19
 ### Added
 - Added ability to split log message into parts

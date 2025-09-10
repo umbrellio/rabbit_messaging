@@ -9,15 +9,24 @@ module Rabbit::Publishing
     alias_method :confirm_select?, :confirm_select
     alias_method :realtime?, :realtime
 
-    def initialize(attributes = {})
-      self.routing_key     = attributes[:routing_key]
-      self.event           = attributes[:event]&.to_s
-      self.data            = attributes.fetch(:data, {})
-      self.exchange_name   = Array(attributes.fetch(:exchange_name, []))
-      self.confirm_select  = attributes.fetch(:confirm_select, true)
-      self.realtime        = attributes.fetch(:realtime, false)
-      self.headers         = attributes.fetch(:headers, {})
-      self.message_id      = attributes[:message_id]
+    def initialize(
+      routing_key: nil,
+      event: nil,
+      data: {},
+      exchange_name: [],
+      confirm_select: true,
+      realtime: false,
+      headers: {},
+      message_id: nil
+    )
+      self.routing_key = routing_key
+      self.event = event&.to_s
+      self.data = data
+      self.exchange_name = Array(exchange_name)
+      self.confirm_select = confirm_select
+      self.realtime = realtime
+      self.headers = headers
+      self.message_id = message_id
     end
 
     def to_hash

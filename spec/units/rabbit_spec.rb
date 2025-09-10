@@ -12,6 +12,7 @@ RSpec.describe Rabbit do
       message_id: "uuid",
     }
   end
+  let(:additional_params) { {} }
 
   before do
     Rabbit.config.queue_name_conversion = -> (queue) { "#{queue}_prepared" }
@@ -52,8 +53,8 @@ RSpec.describe Rabbit do
 
     it "publishes" do
       if expect_to_use_job
-        set_params = { queue: "default_prepared" }
-        expect(Rabbit::Publishing::Job).to receive(:set).with(set_params).and_call_original
+        set_params = { queue: expected_queue }
+        expect(job_class).to receive(:set).with(set_params).and_call_original
         perform_params = {
           routing_key: "some_queue",
           event: "some_event",
@@ -68,7 +69,7 @@ RSpec.describe Rabbit do
           .to receive(:perform_later).with(perform_params).and_call_original
 
       else
-        expect(Rabbit::Publishing::Job).not_to receive(:perform_later)
+        expect(job_class).not_to receive(:perform_later)
       end
 
       expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
@@ -79,7 +80,7 @@ RSpec.describe Rabbit do
         test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
         confirm: ...world"}
       MSG
-      described_class.publish(message_options)
+      described_class.publish(**message_options, **additional_params)
     end
 
     after do
@@ -96,6 +97,7 @@ RSpec.describe Rabbit do
     let(:publish_logger)   { double("publish_logger") }
     let(:bunny)            { double("bunny") }
     let(:channel)          { double("channel") }
+    let(:job_class)        { Rabbit::Publishing::Job }
 
     before do
       allow(Bunny).to receive_message_chain(:new, :start).and_return(bunny)
@@ -132,13 +134,13 @@ RSpec.describe Rabbit do
         confirm: {"hello":"world"}
       MSG
 
-      expect { described_class.publish(message_options) }.not_to raise_error
+      expect { described_class.publish(**message_options) }.not_to raise_error
     end
 
     it "raises the last exception after max retries" do
       allow(channel).to receive(:basic_publish).and_raise(Bunny::ConnectionClosedError.new(""))
 
-      expect { described_class.publish(message_options) }
+      expect { described_class.publish(**message_options) }
         .to raise_error(Bunny::ConnectionClosedError)
     end
   end
@@ -146,6 +148,8 @@ RSpec.describe Rabbit do
   context "realtime" do
     let(:realtime) { true }
     let(:expect_to_use_job) { false }
+    let(:expected_queue) { "default_prepared" }
+    let(:job_class) { Rabbit::Publishing::Job }
 
     include_examples "publishes"
   end
@@ -153,6 +157,55 @@ RSpec.describe Rabbit do
   context "not realtime" do
     let(:realtime) { false }
     let(:expect_to_use_job) { true }
+    let(:expected_queue) { "default_prepared" }
+    let(:job_class) { Rabbit::Publishing::Job }
+
+    include_examples "publishes"
+  end
+
+  context "with custom job class" do
+    let(:realtime) { false }
+    let(:expect_to_use_job) { true }
+    let(:expected_queue) { "default_prepared" }
+    let(:job_class) { Class.new(Rabbit::Publishing::Job) }
+
+    before do
+      stub_const("CustomJobClass", job_class)
+      allow(Rabbit.config).to receive(:publishing_job_class_callable).and_return(job_class)
+    end
+
+    include_examples "publishes"
+  end
+
+  context "with custom default_publishing_job_queue" do
+    let(:realtime) { false }
+    let(:expect_to_use_job) { true }
+    let(:job_class) { Rabbit::Publishing::Job }
+    let(:default_publishing_job_queue) { :custom_queue }
+    let(:expected_queue) { "passed_to_method_queue" }
+    let(:additional_params) { { custom_queue_name: "passed_to_method_queue" } }
+
+    before do
+      allow(Rabbit.config).to(
+        receive(:default_publishing_job_queue).and_return(default_publishing_job_queue),
+      )
+    end
+
+    include_examples "publishes"
+  end
+
+  context "with custom queue name" do
+    let(:realtime) { false }
+    let(:expect_to_use_job) { true }
+    let(:job_class) { Rabbit::Publishing::Job }
+    let(:default_publishing_job_queue) { :custom_queue }
+    let(:expected_queue) { "custom_queue_prepared" }
+
+    before do
+      allow(Rabbit.config).to(
+        receive(:default_publishing_job_queue).and_return(default_publishing_job_queue),
+      )
+    end
 
     include_examples "publishes"
   end
