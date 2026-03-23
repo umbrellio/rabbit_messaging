@@ -4,6 +4,7 @@ require "rabbit/version"
 require "rabbit/daemon"
 require "rabbit/publishing"
 require "rabbit/event_handler"
+require "rabbit/compressor"
 
 require "rabbit/extensions/bunny/channel"
 
@@ -178,7 +179,8 @@ module Rabbit
     realtime: false,
     headers: {},
     message_id: nil,
-    custom_queue_name: nil
+    custom_queue_name: nil,
+    compress: false
   )
     message = Publishing::Message.new(
       routing_key: routing_key,
@@ -189,6 +191,7 @@ module Rabbit
       realtime: realtime,
       headers: headers,
       message_id: message_id,
+      compress: compress,
     )
     job_class = config.publishing_job_class_callable
     publish_job_callable = job_class.is_a?(Proc) ? job_class.call : (job_class || Publishing::Job)

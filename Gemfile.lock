@@ -11,6 +11,8 @@ PATH
     rabbit_messaging (1.7.0)
       bunny (~> 2.0)
       kicks
+      msgpack
+      zlib
 
 GEM
   remote: https://rubygems.org/
@@ -66,6 +68,7 @@ GEM
     logger (1.6.5)
     method_source (1.1.0)
     minitest (5.25.4)
+    msgpack (1.8.0)
     parallel (1.26.3)
     parser (3.3.7.1)
       ast (~> 2.4.1)
@@ -158,6 +161,7 @@ GEM
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
+    zlib (3.2.3)
 
 PLATFORMS
   arm64-darwin

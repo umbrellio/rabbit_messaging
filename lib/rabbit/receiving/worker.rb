@@ -29,8 +29,10 @@ class Rabbit::Receiving::Worker
   end
 
   def receive_message(message, delivery_info, arguments)
+    compress = arguments.fetch(:compress, false)
+
     Rabbit::Receiving::Receive.new(
-      message: message.dup.force_encoding("UTF-8"),
+      message: prepare_message_for_receiving(message.dup, compress),
       delivery_info: delivery_info,
       arguments: arguments,
     ).call
@@ -48,5 +50,13 @@ class Rabbit::Receiving::Worker
     stop
     @queue.instance_variable_set(:@banny, nil)
     run
+  end
+
+  private
+
+  def prepare_message_for_receiving(message, compress)
+    return message if compress
+
+    message.force_encoding("UTF-8")
   end
 end

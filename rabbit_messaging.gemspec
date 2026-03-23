@@ -21,4 +21,6 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "bunny", "~> 2.0"
   spec.add_dependency "kicks"
+  spec.add_dependency "msgpack"
+  spec.add_dependency "zlib"
 end

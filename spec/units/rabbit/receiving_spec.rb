@@ -135,6 +135,20 @@ describe "Receiving messages" do
           run_receive
         end
 
+        context "message has been compressed" do
+          let(:arguments) { super().merge(compress: true) }
+          let(:message) { Zlib::Deflate.deflate(MessagePack.pack({ hello: "world", foo: "bar" })) }
+
+          it "performs job successfully" do
+            expect(Rabbit.config.exception_notifier).not_to receive(:call)
+
+            expect_job_queue_to_be_set
+            expect_some_handler_to_be_called
+
+            run_receive
+          end
+        end
+
         context "custom job configuration" do
           let(:job_configs) { Hash[some: :kek, pek: 123] }
 
