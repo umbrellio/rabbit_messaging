@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.8.0] - 2026-03-25
+### Added
+- Ability to compress data on publisher level and decompress on consumer
+
 ## [1.7.0] - 2025-08-19
 ### Added
 - Ability to specify a custom job class for publishing via `publishing_job_class_callable` config.
