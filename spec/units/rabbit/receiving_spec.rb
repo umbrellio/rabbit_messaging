@@ -147,6 +147,23 @@ describe "Receiving messages" do
 
             run_receive
           end
+
+          context "when data has deep inheritance" do
+            let(:message) do
+              Zlib::Deflate.deflate(MessagePack.pack({ hello: "world", foo: { inherited: "bar" } }))
+            end
+
+            it "performs job successfully" do
+              expect_job_queue_to_be_set
+              expect_any_instance_of(handler).to receive(:call) do |instance|
+                expect(instance.hello).to eq("world")
+                expect(instance.data).to eq(hello: "world", foo: { inherited: "bar" })
+                expect(instance.message_info).to include(message_info)
+              end
+
+              run_receive
+            end
+          end
         end
 
         context "custom job configuration" do

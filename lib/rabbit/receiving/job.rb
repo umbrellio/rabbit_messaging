@@ -11,7 +11,6 @@ begin
 
   class Rabbit::Receiving::Job < ActiveJob::Base
     def perform(message, arguments)
-      # binding.pry
       message = Rabbit::Receiving::Message.build(message, arguments)
       handler = Rabbit::Receiving::HandlerResolver.handler_for(message)
       handler.new(message).call
