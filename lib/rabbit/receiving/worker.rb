@@ -55,7 +55,7 @@ class Rabbit::Receiving::Worker
   private
 
   def prepare_message_for_receiving(message, compress)
-    return message if compress
+    return message.b if compress
 
     message.force_encoding("UTF-8")
   end
