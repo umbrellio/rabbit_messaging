@@ -43,10 +43,9 @@ RSpec.describe Rabbit do
           mandatory: true,
           persistent: true,
           type: "some_event",
-          compress: false,
           content_type: "application/json",
           app_id: "test_group_id.test_project_id",
-          headers: { "foo" => "bar" },
+          headers: { "foo" => "bar", compress: false },
           message_id: "uuid",
         ),
       )
@@ -62,9 +61,8 @@ RSpec.describe Rabbit do
           data: { "hello" => "world" },
           exchange_name: %w[some_exchange],
           confirm_select: true,
-          compress: false,
           realtime: realtime,
-          headers: { "foo" => "bar" },
+          headers: { "foo" => "bar", compress: false },
           message_id: "uuid",
         }
         expect_any_instance_of(ActiveJob::ConfiguredJob)
@@ -74,14 +72,16 @@ RSpec.describe Rabbit do
         expect(job_class).not_to receive(:perform_later)
       end
 
+      # rubocop:disable Layout/LineLength
       expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
-        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
+        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar","compress":false} / some_event / \
         confirm: {"hello":"...
       MSG
       expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
-        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
+        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar","compress":false} / some_event / \
         confirm: ...world"}
       MSG
+      # rubocop:enable Layout/LineLength
       described_class.publish(**message_options, **additional_params)
     end
 
@@ -131,10 +131,12 @@ RSpec.describe Rabbit do
       end
 
       expect(channel).to receive(:basic_publish).exactly(max_retries + 1).times
+      # rubocop:disable Layout/LineLength
       expect(publish_logger).to receive(:debug).with(<<~MSG.strip).once
-        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
-        confirm: {"hello":"world"}
+      test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar","compress":false} / some_event / \
+      confirm: {"hello":"world"}
       MSG
+      # rubocop:enable Layout/LineLength
 
       expect { described_class.publish(**message_options) }.not_to raise_error
     end

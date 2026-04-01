@@ -12,7 +12,7 @@ class Rabbit::Receiving::Receive
     self.message = message
     self.delivery_info = delivery_info
     self.arguments = arguments
-    self.compress = arguments.fetch(:compress, false)
+    self.compress = arguments.dig(:headers, :compress) || false
   end
 
   def call

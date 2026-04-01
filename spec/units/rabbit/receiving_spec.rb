@@ -6,7 +6,9 @@ describe "Receiving messages" do
   let(:worker)        { Rabbit::Receiving::Worker.new }
   let(:message)       { { hello: "world", foo: "bar" }.to_json }
   let(:delivery_info) { { exchange: "some exchange", routing_key: "some_key" } }
-  let(:arguments)     { { type: event, app_id: "some_group.some_app", message_id: "uuid" } }
+  let(:arguments)     do
+    { type: event, app_id: "some_group.some_app", message_id: "uuid", headers: headers }
+  end
   let(:event)         { "some_successful_event" }
   let(:job_class)     { Rabbit::Receiving::Job }
   let(:job_configs)   { {} }
@@ -15,6 +17,7 @@ describe "Receiving messages" do
   let(:before_hook)   { double("before hook") }
   let(:after_hook)    { double("after hook") }
   let(:message_info)  { arguments.merge(delivery_info.slice(:exchange, :routing_key)) }
+  let(:headers) { {} }
 
   def expect_job_queue_to_be_set
     expect(job_class).to receive(:set).with(queue: queue, **job_configs)
@@ -136,7 +139,7 @@ describe "Receiving messages" do
         end
 
         context "message has been compressed" do
-          let(:arguments) { super().merge(compress: true) }
+          let(:headers) { super().merge(compress: true) }
           let(:message) { Zlib::Deflate.deflate(MessagePack.pack({ hello: "world", foo: "bar" })) }
 
           it "performs job successfully" do

@@ -66,8 +66,9 @@ module Rabbit
         message.event, message.confirm_select? ? "confirm" : "no-confirm"
       ]
 
-      message_parts = JSON.dump(message.data)
-                          .scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
+      message_parts = message
+                        .dumped_data
+                        .scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
 
       message_parts.each_with_index do |message_part, index|
         message = Rabbit::Helper.generate_message(message_part, message_parts.size, index)

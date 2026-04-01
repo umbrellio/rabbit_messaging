@@ -27,10 +27,11 @@ describe Rabbit::Publishing::Message do
           routing_key: :nah,
           data: { foo: :bar },
           exchange_name: :fanout,
-          headers: { "foo" => "bar" },
+          headers: headers,
           message_id: "super-uuid",
         }
       end
+      let(:headers) { { "foo" => "bar" } }
 
       its(:basic_publish_args) do
         is_expected.to eq [
@@ -41,15 +42,14 @@ describe Rabbit::Publishing::Message do
             type: "ping",
             content_type: "application/json",
             app_id: "test_group_id.test_project_id",
-            compress: false,
-            headers: { "foo" => "bar" },
+            headers: { "foo" => "bar", compress: false },
             message_id: "super-uuid",
           }
         ]
       end
 
       context "when message should be compressed" do
-        let(:attributes) { super().merge(compress: true) }
+        let(:headers) { super().merge({ compress: true }) }
         let(:packed_data) { Zlib::Deflate.deflate(MessagePack.pack({ foo: :bar })) }
 
         its(:basic_publish_args) do
@@ -60,9 +60,9 @@ describe Rabbit::Publishing::Message do
               persistent: true,
               type: "ping",
               content_type: "application/json",
+              content_encoding: "gzip",
               app_id: "test_group_id.test_project_id",
-              compress: true,
-              headers: { "foo" => "bar" },
+              headers: { "foo" => "bar", compress: true },
               message_id: "super-uuid",
             }
           ]
@@ -87,8 +87,7 @@ describe Rabbit::Publishing::Message do
             type: "update",
             content_type: "application/json",
             app_id: "test_group_id.test_project_id",
-            compress: false,
-            headers: {},
+            headers: { compress: false },
             message_id: nil,
           }
         ]

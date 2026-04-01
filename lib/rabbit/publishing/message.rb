@@ -17,8 +17,7 @@ module Rabbit::Publishing
       confirm_select: true,
       realtime: false,
       headers: {},
-      message_id: nil,
-      compress: false
+      message_id: nil
     )
       self.routing_key = routing_key
       self.event = event&.to_s
@@ -28,12 +27,13 @@ module Rabbit::Publishing
       self.realtime = realtime
       self.headers = headers
       self.message_id = message_id
-      self.compress = compress
+      self.compress = headers.fetch(:compress, false)
     end
 
     def to_hash
       instance_variables.each_with_object({}) do |var, hash|
         key = var.to_s.delete("@").to_sym
+        next if key == :compress
         value = instance_variable_get(var)
         hash[key] = value
       end.merge(data: data_for_hash)
@@ -57,8 +57,10 @@ module Rabbit::Publishing
         app_id: Rabbit.config.app_name,
         headers: headers,
         message_id: message_id,
-        compress: compress,
-      }
+      }.tap do |ops|
+        ops[:content_encoding] = "gzip" if compress
+        ops[:headers] = ops[:headers].merge(compress: compress)
+      end
 
       [dumped_data, real_exchange_name, routing_key.to_s, options]
     end
@@ -71,13 +73,13 @@ module Rabbit::Publishing
       [Rabbit.config.group_id, Rabbit.config.project_id, *exchange_name].join(".")
     end
 
-    private
-
     def dumped_data
       return JSON.dump(data) unless compress
 
       Rabbit::Compressor.dump(data)
     end
+
+    private
 
     def data_for_hash
       return JSON.parse(data.to_json) unless compress

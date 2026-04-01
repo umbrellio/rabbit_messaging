@@ -189,9 +189,8 @@ module Rabbit
       exchange_name: exchange_name,
       confirm_select: confirm_select,
       realtime: realtime,
-      headers: headers,
+      headers: headers.merge(compress: compress),
       message_id: message_id,
-      compress: compress,
     )
     job_class = config.publishing_job_class_callable
     publish_job_callable = job_class.is_a?(Proc) ? job_class.call : (job_class || Publishing::Job)
