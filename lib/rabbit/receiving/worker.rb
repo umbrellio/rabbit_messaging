@@ -29,6 +29,7 @@ class Rabbit::Receiving::Worker
   end
 
   def receive_message(message, delivery_info, arguments)
+    arguments = arguments.with_indifferent_access
     compress = arguments.dig(:headers, :compress) || false
 
     Rabbit::Receiving::Receive.new(
