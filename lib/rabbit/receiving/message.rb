@@ -15,7 +15,7 @@ module Rabbit::Receiving
         group_id: group_id,
         project_id: project_id,
         event: arguments.fetch(:type),
-        compress: arguments.dig(:headers, :compress) || false,
+        compress: arguments.dig(:headers, "compress") || false,
         data: message,
         message_id: arguments.fetch(:message_id, nil),
         arguments: arguments,

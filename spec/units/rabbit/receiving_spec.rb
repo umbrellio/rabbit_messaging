@@ -139,7 +139,7 @@ describe "Receiving messages" do
         end
 
         context "message has been compressed" do
-          let(:headers) { super().merge(compress: true) }
+          let(:headers) { super().merge("compress" => true) }
           let(:message) { Zlib::Deflate.deflate(MessagePack.pack({ hello: "world", foo: "bar" })) }
 
           it "performs job successfully" do
