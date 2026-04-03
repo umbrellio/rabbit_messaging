@@ -27,7 +27,7 @@ module Rabbit::Publishing
       self.realtime = realtime
       self.headers = headers
       self.message_id = message_id
-      self.compress = headers.fetch(:compress, false)
+      self.compress = headers.with_indifferent_access.fetch(:compress, false)
     end
 
     def to_hash
@@ -59,7 +59,6 @@ module Rabbit::Publishing
         message_id: message_id,
       }.tap do |ops|
         ops[:content_encoding] = "gzip" if compress
-        ops[:headers] = ops[:headers].merge(compress: compress)
       end
 
       [dumped_data, real_exchange_name, routing_key.to_s, options]

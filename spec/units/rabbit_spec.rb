@@ -8,7 +8,7 @@ RSpec.describe Rabbit do
       event: "some_event",
       data: { hello: :world },
       realtime: realtime,
-      headers: { "foo" => "bar" },
+      headers: { "foo" => "bar", "compress" => false },
       message_id: "uuid",
     }
   end
@@ -45,7 +45,7 @@ RSpec.describe Rabbit do
           type: "some_event",
           content_type: "application/json",
           app_id: "test_group_id.test_project_id",
-          headers: { "foo" => "bar", compress: false },
+          headers: { "foo" => "bar", "compress" => false },
           message_id: "uuid",
         ),
       )
@@ -62,7 +62,7 @@ RSpec.describe Rabbit do
           exchange_name: %w[some_exchange],
           confirm_select: true,
           realtime: realtime,
-          headers: { "foo" => "bar", compress: false },
+          headers: { "foo" => "bar", "compress" => false },
           message_id: "uuid",
         }
         expect_any_instance_of(ActiveJob::ConfiguredJob)

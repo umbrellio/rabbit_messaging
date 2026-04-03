@@ -6,17 +6,16 @@ require "rabbit/receiving/job"
 require "rabbit/helper"
 
 class Rabbit::Receiving::Receive
-  attr_accessor :message, :delivery_info, :arguments, :compress
+  attr_accessor :message, :delivery_info, :arguments
 
   def initialize(message: nil, delivery_info: nil, arguments: nil)
     self.message = message
     self.delivery_info = delivery_info
     self.arguments = arguments
-    self.compress = arguments.dig(:headers, :compress) || false
   end
 
   def call
-    log! unless compress
+    log!
     call_hooks(before_hooks)
     process_message
     call_hooks(after_hooks)

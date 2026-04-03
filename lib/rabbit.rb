@@ -179,8 +179,7 @@ module Rabbit
     realtime: false,
     headers: {},
     message_id: nil,
-    custom_queue_name: nil,
-    compress: false
+    custom_queue_name: nil
   )
     message = Publishing::Message.new(
       routing_key: routing_key,
@@ -189,7 +188,7 @@ module Rabbit
       exchange_name: exchange_name,
       confirm_select: confirm_select,
       realtime: realtime,
-      headers: headers.merge(compress: compress),
+      headers: headers,
       message_id: message_id,
     )
     job_class = config.publishing_job_class_callable
