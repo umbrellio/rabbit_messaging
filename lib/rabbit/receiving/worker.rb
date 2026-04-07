@@ -4,6 +4,7 @@ require "sneakers"
 
 require "rabbit"
 require "rabbit/receiving/receive"
+require "base64"
 
 class Rabbit::Receiving::Worker
   include Sneakers::Worker
@@ -55,7 +56,7 @@ class Rabbit::Receiving::Worker
   private
 
   def prepare_message_for_receiving(message, compress)
-    return message.b if compress
+    return Base64.strict_encode64(message.b) if compress
 
     message.force_encoding("UTF-8")
   end

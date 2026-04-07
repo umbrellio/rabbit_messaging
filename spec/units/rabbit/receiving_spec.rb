@@ -18,6 +18,8 @@ describe "Receiving messages" do
   let(:after_hook)    { double("after hook") }
   let(:message_info)  { arguments.merge(delivery_info.slice(:exchange, :routing_key)) }
   let(:headers) { {} }
+  let(:before_hook_args) { [message, message_info] }
+  let(:after_hook_args) { [message, message_info] }
 
   def expect_job_queue_to_be_set
     expect(job_class).to receive(:set).with(queue: queue, **job_configs)
@@ -44,8 +46,8 @@ describe "Receiving messages" do
   end
 
   def expect_hooks_to_be_called
-    expect(before_hook).to receive(:call).with(message, message_info)
-    expect(after_hook).to receive(:call).with(message, message_info)
+    expect(before_hook).to receive(:call).with(*before_hook_args)
+    expect(after_hook).to receive(:call).with(*after_hook_args)
   end
 
   before do
@@ -58,8 +60,8 @@ describe "Receiving messages" do
 
     allow(job_class).to receive(:set).with(queue: queue, **job_configs).and_call_original
 
-    allow(before_hook).to receive(:call).with(message, message_info)
-    allow(after_hook).to receive(:call).with(message, message_info)
+    allow(before_hook).to receive(:call).with(*before_hook_args)
+    allow(after_hook).to receive(:call).with(*after_hook_args)
 
     handler.ignore_queue_conversion = conversion
   end
@@ -141,6 +143,8 @@ describe "Receiving messages" do
         context "message has been compressed" do
           let(:headers) { super().merge("compress" => true) }
           let(:message) { Zlib::Deflate.deflate(MessagePack.pack({ hello: "world", foo: "bar" })) }
+          let(:before_hook_args) { [Base64.strict_encode64(message), message_info] }
+          let(:after_hook_args) { [Base64.strict_encode64(message), message_info] }
 
           it "performs job successfully" do
             expect(Rabbit.config.exception_notifier).not_to receive(:call)

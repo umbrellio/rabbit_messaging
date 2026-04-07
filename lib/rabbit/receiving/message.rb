@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "rabbit/receiving/malformed_message"
+require "base64"
 
 module Rabbit::Receiving
   class Message
@@ -72,7 +73,7 @@ module Rabbit::Receiving
     def parsed_data(value)
       return JSON.parse(value).deep_symbolize_keys unless compress
 
-      Rabbit::Compressor.load(value, msgpack_options: { symbolize_keys: true })
+      Rabbit::Compressor.load(Base64.decode64(value), msgpack_options: { symbolize_keys: true })
     end
   end
 end
