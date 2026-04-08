@@ -25,13 +25,14 @@ describe Rabbit::Publishing::Message do
         {
           event: :ping,
           routing_key: :nah,
-          data: { foo: :bar },
+          data: incoming_data,
           exchange_name: :fanout,
           headers: headers,
           message_id: "super-uuid",
         }
       end
       let(:headers) { { "foo" => "bar", "compress" => false } }
+      let(:incoming_data) { { foo: :bar } }
 
       its(:basic_publish_args) do
         is_expected.to eq [
@@ -50,7 +51,8 @@ describe Rabbit::Publishing::Message do
 
       context "when message should be compressed" do
         let(:headers) { super().merge({ "compress" => true }) }
-        let(:packed_data) { Zlib::Deflate.deflate(MessagePack.pack({ foo: :bar })) }
+        let(:packed_data) { Rabbit::Compressor.dump({ foo: :bar }) }
+        let(:incoming_data) { Rabbit::Compressor.dump({ foo: :bar }, with_base64: true) }
 
         its(:basic_publish_args) do
           is_expected.to eq [

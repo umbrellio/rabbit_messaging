@@ -74,8 +74,11 @@ module Rabbit::Publishing
 
     def dumped_data
       return JSON.dump(data) unless compress
+      # NOTE: when compress true and realtime false it means data from job
+      # already has been compressed and encoded in base64
+      return Rabbit::Compressor.dump(data) if realtime
 
-      Rabbit::Compressor.dump(data)
+      Rabbit::Compressor.decode64(data)
     end
 
     private
@@ -83,7 +86,7 @@ module Rabbit::Publishing
     def data_for_hash
       return JSON.parse(data.to_json) unless compress
 
-      Rabbit::Compressor.dump(data)
+      Rabbit::Compressor.dump(data, with_base64: true)
     end
   end
 end

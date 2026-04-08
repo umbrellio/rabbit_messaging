@@ -73,7 +73,7 @@ module Rabbit::Receiving
     def parsed_data(value)
       return JSON.parse(value).deep_symbolize_keys unless compress
 
-      Rabbit::Compressor.load(Base64.decode64(value), msgpack_options: { symbolize_keys: true })
+      Rabbit::Compressor.load(value, msgpack_options: { symbolize_keys: true }, with_base64: true)
     end
   end
 end

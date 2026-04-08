@@ -142,7 +142,7 @@ describe "Receiving messages" do
 
         context "message has been compressed" do
           let(:headers) { super().merge("compress" => true) }
-          let(:message) { Zlib::Deflate.deflate(MessagePack.pack({ hello: "world", foo: "bar" })) }
+          let(:message) { Rabbit::Compressor.dump({ hello: "world", foo: "bar" }) }
           let(:before_hook_args) { [Base64.strict_encode64(message), message_info] }
           let(:after_hook_args) { [Base64.strict_encode64(message), message_info] }
 

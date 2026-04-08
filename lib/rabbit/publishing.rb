@@ -71,8 +71,10 @@ module Rabbit
                         .scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
 
       message_parts.each_with_index do |message_part, index|
-        message = Rabbit::Helper.generate_message(message_part, message_parts.size, index)
-        @logger.debug "#{metadata.join ' / '}: #{message}"
+        formatted_message = Rabbit::Helper.generate_message(
+          message_part, message_parts.size, index, compressed: message.compress
+        )
+        @logger.debug "#{metadata.join ' / '}: #{formatted_message}"
       end
     end
 
