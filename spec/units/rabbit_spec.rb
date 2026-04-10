@@ -28,9 +28,6 @@ RSpec.describe Rabbit do
       message_id: "uuid",
     }
   end
-  let(:logger_first_part_message) { '{"hello":"...' }
-  let(:logger_second_part_message) { '...world"}' }
-  let(:logger_message_size_limit) { 10 }
 
   before do
     Rabbit.config.queue_name_conversion = -> (queue) { "#{queue}_prepared" }
@@ -49,9 +46,7 @@ RSpec.describe Rabbit do
       allow(channel).to receive(:open?).and_return(true)
 
       allow(Rabbit.config).to receive(:publish_logger) { publish_logger }
-      allow(Rabbit.config).to \
-        receive(:logger_message_size_limit)
-          .and_return(logger_message_size_limit)
+      allow(Rabbit.config).to receive(:logger_message_size_limit).and_return(10)
 
       expect(channel).to receive(:confirm_select).once
       allow(channel).to receive(:wait_for_confirms).and_return(true)
@@ -84,16 +79,20 @@ RSpec.describe Rabbit do
         expect(job_class).not_to receive(:perform_later)
       end
 
-      # rubocop:disable Layout/LineLength
-      expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
+      if compress
+        expect(publish_logger).to receive(:debug).with(expected_log_compressed_message)
+      else
+        # rubocop:disable Layout/LineLength
+        expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
         test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar","compress":#{compress}} / some_event / \
-        confirm: #{logger_first_part_message}
-      MSG
-      expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
+        confirm: {"hello":"...
+        MSG
+        expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
         test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar","compress":#{compress}} / some_event / \
-        confirm: #{logger_second_part_message}
-      MSG
-      # rubocop:enable Layout/LineLength
+        confirm: ...world"}
+        MSG
+        # rubocop:enable Layout/LineLength
+      end
       described_class.publish(**message_options, **additional_params)
     end
 
@@ -239,9 +238,14 @@ RSpec.describe Rabbit do
     let(:basic_publish_expected_args) do
       super().merge(content_encoding: "gzip")
     end
-    let(:logger_first_part_message) { "message part bytes 15..." }
-    let(:logger_second_part_message) { "...message part bytes 6" }
-    let(:logger_message_size_limit) { 15 }
+    # rubocop:disable Layout/LineLength
+    let(:expected_log_compressed_message) do
+      <<~MSG.strip
+        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar","compress":#{compress}} / some_event / \
+        confirm: message bytes 21
+      MSG
+    end
+    # rubocop:enable Layout/LineLength
 
     it_behaves_like "publishes"
 

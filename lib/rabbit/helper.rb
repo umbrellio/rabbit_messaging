@@ -17,7 +17,7 @@ module Rabbit
     def self.format(message_part, compressed)
       return message_part unless compressed
 
-      "message part bytes #{message_part.bytesize}"
+      "message bytes #{message_part.bytesize}"
     end
   end
 end

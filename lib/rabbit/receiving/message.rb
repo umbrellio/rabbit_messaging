@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require "rabbit/receiving/malformed_message"
-require "base64"
 
 module Rabbit::Receiving
   class Message
