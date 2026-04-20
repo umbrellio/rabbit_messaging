@@ -66,17 +66,35 @@ module Rabbit
         message.event, message.confirm_select? ? "confirm" : "no-confirm"
       ]
 
-      message_parts = JSON.dump(message.data)
-                          .scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
+      return log_compressed(message.dumped_data, metadata: metadata) if message.compress
 
-      message_parts.each_with_index do |message_part, index|
-        message = Rabbit::Helper.generate_message(message_part, message_parts.size, index)
-        @logger.debug "#{metadata.join ' / '}: #{message}"
-      end
+      log_by_parts(message, metadata: metadata)
     end
 
     def reinitialize_channels_pool
       MUTEX.synchronize { @pool = ChannelsPool.new(create_client) }
+    end
+
+    def log_compressed(message_for_publish, metadata:)
+      formatted_message = Rabbit::Helper.generate_message(
+        message_for_publish, 1, 0, compressed: true
+      )
+
+      @logger.debug "#{metadata.join ' / '}: #{formatted_message}"
+    end
+
+    def log_by_parts(message_for_publish, metadata:)
+      message_parts =
+        message_for_publish
+          .dumped_data
+          .scan(/.{1,#{Rabbit.config.logger_message_size_limit}}/)
+
+      message_parts.each_with_index do |message_part, index|
+        formatted_message = Rabbit::Helper.generate_message(
+          message_part, message_parts.size, index
+        )
+        @logger.debug "#{metadata.join ' / '}: #{formatted_message}"
+      end
     end
   end
 end

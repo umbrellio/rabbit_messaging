@@ -6,13 +6,28 @@ RSpec.describe Rabbit do
       exchange_name: "some_exchange",
       routing_key: "some_queue",
       event: "some_event",
-      data: { hello: :world },
+      data: message_data,
       realtime: realtime,
-      headers: { "foo" => "bar" },
+      headers: { "foo" => "bar", "compress" => compress },
       message_id: "uuid",
     }
   end
   let(:additional_params) { {} }
+  let(:compress) { false }
+  let(:expected_data_for_publish_job) { { "hello" => "world" } }
+  let(:message_data) { { hello: :world } }
+  let(:basic_publish_data) { message_data.to_json }
+  let(:basic_publish_expected_args) do
+    {
+      mandatory: true,
+      persistent: true,
+      type: "some_event",
+      content_type: "application/json",
+      app_id: "test_group_id.test_project_id",
+      headers: { "foo" => "bar", "compress" => compress },
+      message_id: "uuid",
+    }
+  end
 
   before do
     Rabbit.config.queue_name_conversion = -> (queue) { "#{queue}_prepared" }
@@ -36,18 +51,10 @@ RSpec.describe Rabbit do
       expect(channel).to receive(:confirm_select).once
       allow(channel).to receive(:wait_for_confirms).and_return(true)
       expect(channel).to receive(:basic_publish).with(
-        { hello: :world }.to_json,
+        basic_publish_data,
         "test_group_id.test_project_id.some_exchange",
         "some_queue",
-        match(
-          mandatory: true,
-          persistent: true,
-          type: "some_event",
-          content_type: "application/json",
-          app_id: "test_group_id.test_project_id",
-          headers: { "foo" => "bar" },
-          message_id: "uuid",
-        ),
+        match(basic_publish_expected_args),
       )
     end
 
@@ -58,11 +65,11 @@ RSpec.describe Rabbit do
         perform_params = {
           routing_key: "some_queue",
           event: "some_event",
-          data: { "hello" => "world" },
+          data: expected_data_for_publish_job,
           exchange_name: %w[some_exchange],
           confirm_select: true,
           realtime: realtime,
-          headers: { "foo" => "bar" },
+          headers: { "foo" => "bar", "compress" => compress },
           message_id: "uuid",
         }
         expect_any_instance_of(ActiveJob::ConfiguredJob)
@@ -72,14 +79,20 @@ RSpec.describe Rabbit do
         expect(job_class).not_to receive(:perform_later)
       end
 
-      expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
-        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
+      if compress
+        expect(publish_logger).to receive(:debug).with(expected_log_compressed_message)
+      else
+        # rubocop:disable Layout/LineLength
+        expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
+        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar","compress":#{compress}} / some_event / \
         confirm: {"hello":"...
-      MSG
-      expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
-        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
+        MSG
+        expect(publish_logger).to receive(:debug).with(<<~MSG.strip)
+        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar","compress":#{compress}} / some_event / \
         confirm: ...world"}
-      MSG
+        MSG
+        # rubocop:enable Layout/LineLength
+      end
       described_class.publish(**message_options, **additional_params)
     end
 
@@ -129,10 +142,12 @@ RSpec.describe Rabbit do
       end
 
       expect(channel).to receive(:basic_publish).exactly(max_retries + 1).times
+      # rubocop:disable Layout/LineLength
       expect(publish_logger).to receive(:debug).with(<<~MSG.strip).once
-        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar"} / some_event / \
-        confirm: {"hello":"world"}
+      test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar","compress":#{compress}} / some_event / \
+      confirm: {"hello":"world"}
       MSG
+      # rubocop:enable Layout/LineLength
 
       expect { described_class.publish(**message_options) }.not_to raise_error
     end
@@ -208,6 +223,38 @@ RSpec.describe Rabbit do
     end
 
     include_examples "publishes"
+  end
+
+  context "when data should be compressed" do
+    let(:realtime) { false }
+    let(:compress) { true }
+    let(:expect_to_use_job) { true }
+    let(:expected_queue) { "default_prepared" }
+    let(:job_class) { Rabbit::Publishing::Job }
+    let(:expected_data_for_publish_job) do
+      Rabbit::Compressor.dump({ "hello" => "world" }, with_base64: true)
+    end
+    let(:basic_publish_data) { Rabbit::Compressor.dump(message_data) }
+    let(:basic_publish_expected_args) do
+      super().merge(content_encoding: "gzip")
+    end
+    # rubocop:disable Layout/LineLength
+    let(:expected_log_compressed_message) do
+      <<~MSG.strip
+        test_group_id.test_project_id.some_exchange / some_queue / {"foo":"bar","compress":#{compress}} / some_event / \
+        confirm: message bytes 21
+      MSG
+    end
+    # rubocop:enable Layout/LineLength
+
+    it_behaves_like "publishes"
+
+    context "when data should be sent immediately" do
+      let(:realtime) { true }
+      let(:expect_to_use_job) { false }
+
+      it_behaves_like "publishes"
+    end
   end
 
   describe "config" do

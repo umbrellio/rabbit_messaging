@@ -25,12 +25,14 @@ describe Rabbit::Publishing::Message do
         {
           event: :ping,
           routing_key: :nah,
-          data: { foo: :bar },
+          data: incoming_data,
           exchange_name: :fanout,
-          headers: { "foo" => "bar" },
+          headers: headers,
           message_id: "super-uuid",
         }
       end
+      let(:headers) { { "foo" => "bar", "compress" => false } }
+      let(:incoming_data) { { foo: :bar } }
 
       its(:basic_publish_args) do
         is_expected.to eq [
@@ -41,10 +43,32 @@ describe Rabbit::Publishing::Message do
             type: "ping",
             content_type: "application/json",
             app_id: "test_group_id.test_project_id",
-            headers: { "foo" => "bar" },
+            headers: { "foo" => "bar", "compress" => false },
             message_id: "super-uuid",
           }
         ]
+      end
+
+      context "when message should be compressed" do
+        let(:headers) { super().merge({ "compress" => true }) }
+        let(:packed_data) { Rabbit::Compressor.dump({ foo: :bar }) }
+        let(:incoming_data) { Rabbit::Compressor.dump({ foo: :bar }, with_base64: true) }
+
+        its(:basic_publish_args) do
+          is_expected.to eq [
+            packed_data, "test_group_id.test_project_id.fanout", "nah",
+            {
+              mandatory: true,
+              persistent: true,
+              type: "ping",
+              content_type: "application/json",
+              content_encoding: "gzip",
+              app_id: "test_group_id.test_project_id",
+              headers: { "foo" => "bar", "compress" => true },
+              message_id: "super-uuid",
+            }
+          ]
+        end
       end
     end
 

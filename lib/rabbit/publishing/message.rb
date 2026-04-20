@@ -2,7 +2,7 @@
 
 module Rabbit::Publishing
   class Message
-    attr_accessor :routing_key, :event, :data,
+    attr_accessor :routing_key, :event, :data, :compress,
                   :confirm_select, :realtime, :headers, :message_id
     attr_reader :exchange_name
 
@@ -27,14 +27,16 @@ module Rabbit::Publishing
       self.realtime = realtime
       self.headers = headers
       self.message_id = message_id
+      self.compress = headers.with_indifferent_access.fetch(:compress, false)
     end
 
     def to_hash
       instance_variables.each_with_object({}) do |var, hash|
         key = var.to_s.delete("@").to_sym
+        next if key == :compress
         value = instance_variable_get(var)
         hash[key] = value
-      end.merge(data: JSON.parse(data.to_json))
+      end.merge(data: data_for_hash)
     end
 
     def to_s
@@ -55,9 +57,11 @@ module Rabbit::Publishing
         app_id: Rabbit.config.app_name,
         headers: headers,
         message_id: message_id,
-      }
+      }.tap do |ops|
+        ops[:content_encoding] = "gzip" if compress
+      end
 
-      [JSON.dump(data), real_exchange_name, routing_key.to_s, options]
+      [dumped_data, real_exchange_name, routing_key.to_s, options]
     end
 
     def exchange_name=(names)
@@ -66,6 +70,23 @@ module Rabbit::Publishing
 
     def real_exchange_name
       [Rabbit.config.group_id, Rabbit.config.project_id, *exchange_name].join(".")
+    end
+
+    def dumped_data
+      return JSON.dump(data) unless compress
+      # NOTE: when compress true and realtime false it means data from job
+      # already has been compressed and encoded in base64
+      return Rabbit::Compressor.dump(data) if realtime
+
+      Rabbit::Compressor.decode64(data)
+    end
+
+    private
+
+    def data_for_hash
+      return JSON.parse(data.to_json) unless compress
+
+      Rabbit::Compressor.dump(data, with_base64: true)
     end
   end
 end

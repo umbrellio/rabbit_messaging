@@ -6,7 +6,9 @@ describe "Receiving messages" do
   let(:worker)        { Rabbit::Receiving::Worker.new }
   let(:message)       { { hello: "world", foo: "bar" }.to_json }
   let(:delivery_info) { { exchange: "some exchange", routing_key: "some_key" } }
-  let(:arguments)     { { type: event, app_id: "some_group.some_app", message_id: "uuid" } }
+  let(:arguments)     do
+    { type: event, app_id: "some_group.some_app", message_id: "uuid", headers: headers }
+  end
   let(:event)         { "some_successful_event" }
   let(:job_class)     { Rabbit::Receiving::Job }
   let(:job_configs)   { {} }
@@ -15,6 +17,9 @@ describe "Receiving messages" do
   let(:before_hook)   { double("before hook") }
   let(:after_hook)    { double("after hook") }
   let(:message_info)  { arguments.merge(delivery_info.slice(:exchange, :routing_key)) }
+  let(:headers) { {} }
+  let(:before_hook_args) { [message, message_info] }
+  let(:after_hook_args) { [message, message_info] }
 
   def expect_job_queue_to_be_set
     expect(job_class).to receive(:set).with(queue: queue, **job_configs)
@@ -41,8 +46,8 @@ describe "Receiving messages" do
   end
 
   def expect_hooks_to_be_called
-    expect(before_hook).to receive(:call).with(message, message_info)
-    expect(after_hook).to receive(:call).with(message, message_info)
+    expect(before_hook).to receive(:call).with(*before_hook_args)
+    expect(after_hook).to receive(:call).with(*after_hook_args)
   end
 
   before do
@@ -55,8 +60,8 @@ describe "Receiving messages" do
 
     allow(job_class).to receive(:set).with(queue: queue, **job_configs).and_call_original
 
-    allow(before_hook).to receive(:call).with(message, message_info)
-    allow(after_hook).to receive(:call).with(message, message_info)
+    allow(before_hook).to receive(:call).with(*before_hook_args)
+    allow(after_hook).to receive(:call).with(*after_hook_args)
 
     handler.ignore_queue_conversion = conversion
   end
@@ -133,6 +138,39 @@ describe "Receiving messages" do
           expect_some_handler_to_be_called
 
           run_receive
+        end
+
+        context "message has been compressed" do
+          let(:headers) { super().merge("compress" => true) }
+          let(:message) { Rabbit::Compressor.dump({ hello: "world", foo: "bar" }) }
+          let(:before_hook_args) { [Base64.strict_encode64(message), message_info] }
+          let(:after_hook_args) { [Base64.strict_encode64(message), message_info] }
+
+          it "performs job successfully" do
+            expect(Rabbit.config.exception_notifier).not_to receive(:call)
+
+            expect_job_queue_to_be_set
+            expect_some_handler_to_be_called
+
+            run_receive
+          end
+
+          context "when data has deep inheritance" do
+            let(:message) do
+              Zlib::Deflate.deflate(MessagePack.pack({ hello: "world", foo: { inherited: "bar" } }))
+            end
+
+            it "performs job successfully" do
+              expect_job_queue_to_be_set
+              expect_any_instance_of(handler).to receive(:call) do |instance|
+                expect(instance.hello).to eq("world")
+                expect(instance.data).to eq(hello: "world", foo: { inherited: "bar" })
+                expect(instance.message_info).to include(message_info)
+              end
+
+              run_receive
+            end
+          end
         end
 
         context "custom job configuration" do

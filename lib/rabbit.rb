@@ -4,6 +4,7 @@ require "rabbit/version"
 require "rabbit/daemon"
 require "rabbit/publishing"
 require "rabbit/event_handler"
+require "rabbit/compressor"
 
 require "rabbit/extensions/bunny/channel"
 
