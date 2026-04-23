@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [1.9.0] - 2026-04-23
+### Added
+- Fixed `queue` class variable inheritance for `queue_as` method.
+
 ## [1.8.0] - 2026-03-25
 ### Added
 - Ability to compress data on publisher level and decompress on consumer
