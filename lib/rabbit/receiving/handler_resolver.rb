@@ -10,7 +10,7 @@ module Rabbit::Receiving::HandlerResolver
   class << self
     def handler_for(message)
       @handler_cache ||= Hash.new do |cache, (group_id, event)|
-        handler = unmemoized_handler_for(group_id, event)
+        handler = unmemoized_handler_for(group_id, event, message)
         cache[[group_id, event]] = handler if Rabbit.config.environment == :production
         handler
       end
@@ -20,7 +20,7 @@ module Rabbit::Receiving::HandlerResolver
 
     private
 
-    def unmemoized_handler_for(group_id, event)
+    def unmemoized_handler_for(group_id, event, message)
       handler = if Rabbit.config.handler_resolver_callable.is_a?(Proc)
                   Rabbit.config.handler_resolver_callable.call(group_id, event)
                 else
@@ -31,7 +31,7 @@ module Rabbit::Receiving::HandlerResolver
       if handler && handler < Rabbit::EventHandler
         handler
       else
-        raise UnsupportedEvent, "#{event.inspect} event from #{group_id.inspect} group is not " \
+        raise UnsupportedEvent, "#{event.inspect} #{message.arguments} event from #{group_id.inspect} group is not " \
                                 "supported, it requires a #{name.inspect} class inheriting from " \
                                 "\"Rabbit::EventHandler\" to be defined"
       end
