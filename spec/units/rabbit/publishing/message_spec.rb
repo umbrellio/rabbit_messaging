@@ -72,6 +72,28 @@ describe Rabbit::Publishing::Message do
       end
     end
 
+    context "headers explicitly set to nil" do
+      let(:attributes) do
+        { event: :ping, routing_key: :nah, data: { foo: :bar }, exchange_name: :fanout,
+          headers: nil }
+      end
+
+      its(:basic_publish_args) do
+        is_expected.to eq [
+          { foo: :bar }.to_json, "test_group_id.test_project_id.fanout", "nah",
+          {
+            mandatory: true,
+            persistent: true,
+            type: "ping",
+            content_type: "application/json",
+            app_id: "test_group_id.test_project_id",
+            headers: {},
+            message_id: nil,
+          }
+        ]
+      end
+    end
+
     context "IPAddr" do
       let(:attributes) do
         {

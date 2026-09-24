@@ -33,6 +33,20 @@ describe Rabbit::Publishing::ChannelsPool do
         with_channel
       end
     end
+
+    context "when a channel cannot be created" do
+      let(:channel) { nil }
+      let(:error)   { Bunny::ChannelAlreadyClosed.new("", nil) }
+
+      before { allow(session).to receive(:create_channel).and_raise(error) }
+
+      it "does not release a channel it never took" do
+        queue = instance.instance_variable_get(:@pools)[confirm]
+
+        expect { with_channel }.to raise_error(Bunny::ChannelAlreadyClosed)
+        expect(queue.instance_variable_get(:@ch_size)).to eq(0)
+      end
+    end
   end
 end
 
@@ -63,6 +77,42 @@ describe Rabbit::Publishing::ChannelsPool::BaseQueue do
         expect(instance).to receive(:add_channel)
 
         pop
+      end
+    end
+
+    context "when the queued channel was closed after it was returned" do
+      let(:session) do
+        double :session, create_channel: fresh_channel, open?: session_open,
+                         recovering_from_network_failure?: recovering
+      end
+      let(:fresh_channel) { double :fresh_channel, open?: true }
+      let(:session_open) { true }
+      let(:recovering) { false }
+
+      before { allow(channel).to receive(:open?).and_return(false) }
+
+      it "skips the channel the broker closed and returns a fresh one" do
+        expect(pop).to eq(fresh_channel)
+      end
+
+      it "gives up the slot of the skipped channel" do
+        expect { pop }.not_to change { instance.instance_variable_get(:@ch_size) }
+      end
+
+      context "when the connection is down" do
+        let(:session_open) { false }
+
+        it "returns the closed channel so that publishing reconnects" do
+          expect(pop).to eq(channel)
+        end
+      end
+
+      context "when the connection is recovering" do
+        let(:recovering) { true }
+
+        it "returns the closed channel so that publishing reconnects" do
+          expect(pop).to eq(channel)
+        end
       end
     end
   end

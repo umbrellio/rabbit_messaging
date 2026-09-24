@@ -25,9 +25,9 @@ module Rabbit::Publishing
       self.exchange_name = Array(exchange_name)
       self.confirm_select = confirm_select
       self.realtime = realtime
-      self.headers = headers
+      self.headers = headers.to_h
       self.message_id = message_id
-      self.compress = headers.with_indifferent_access.fetch(:compress, false)
+      self.compress = self.headers.with_indifferent_access.fetch(:compress, false)
     end
 
     def to_hash

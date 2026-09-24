@@ -2,6 +2,11 @@
 
 Provides client and server support for RabbitMQ
 
+## Requirements
+
+- Ruby >= 3.2
+- Bunny ~> 3.0 (requires OpenSSL with TLS 1.3 support)
+
 ## Installation
 
 ```ruby

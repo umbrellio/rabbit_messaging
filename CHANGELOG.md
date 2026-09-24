@@ -1,6 +1,33 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2026-09-23
+### Changed
+- Upgraded `bunny` dependency to `~> 3.0`.
+- Minimum supported Ruby version is now 3.2, as required by Bunny 3.
+- `kicks` dependency now requires `>= 3.4`, the first version built on Bunny 3.
+
+### Removed
+- Dropped support for Ruby 3.0 and 3.1.
+
+### Fixed
+- `Rabbit::Publishing::Message` no longer raises `NoMethodError` when `headers` is
+  `nil` (regression in 1.8.0); such headers are published as an empty hash.
+- `Rabbit::EventHandler.inherited` no longer overwrites a queue,
+  `ignore_queue_conversion` or job configs the subclass assigned before calling
+  `super` (the queue overwrite was introduced in 1.9.0).
+- Publishing during a reconnect is retried again. Bunny 3.1+ raises
+  `Bunny::ChannelAlreadyClosed` instead of `Bunny::ConnectionClosedError` there,
+  which used to reach the caller. A publish already waiting for publisher confirms
+  when the connection drops still fails with `Rabbit::MessageNotDelivered` after
+  `continuation_timeout`.
+- A channel the broker closed (e.g. a missing exchange) is retried once on a fresh
+  channel instead of `connection_reset_max_retries` times, and no longer fails an
+  unrelated publish that picks it from the pool.
+- Rebuilding the channels pool no longer leaks the old connection: it is closed
+  (after recovery, if it is still recovering), concurrent failures rebuild the
+  pool once, and close errors go to `exception_notifier`.
+
 ## [1.9.0] - 2026-04-23
 ### Added
 - Fixed `queue` class variable inheritance for `queue_as` method.

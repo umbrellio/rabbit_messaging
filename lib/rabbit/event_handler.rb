@@ -10,9 +10,9 @@ class Rabbit::EventHandler
 
     def inherited(subclass)
       super
-      subclass.ignore_queue_conversion = false
-      subclass.additional_job_configs = {}
-      subclass.queue = queue
+      subclass.ignore_queue_conversion ||= false
+      subclass.additional_job_configs ||= {}
+      subclass.queue ||= queue
     end
 
     private
